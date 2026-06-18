@@ -18,7 +18,6 @@
         .wave-canvas { background: #1e293b; border-radius: 4px; width: 100%; height: 40px; display: block; margin-top: 6px; }
         .spectrum-canvas { background: #020617; border: 1px solid #334155; width: 100%; height: 120px; border-radius: 6px; }
         #aiOutput { font-size: 13px; line-height: 1.6; max-height: 520px; overflow-y: auto; color: #cbd5e1; font-family: monospace; }
-        .negative-val { color: #f87171; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -26,7 +25,7 @@
 <div class="container-fluid py-4">
     <div class="row mb-4 align-items-center">
         <div class="col-md-7">
-            <h2 class="fw-bold m-0 text-light">🎛️ Multitrack DAW Pro <small class="text-muted fs-6 fw-normal">v4.0 (Ultimate Processing Engine)</small></h2>
+            <h2 class="fw-bold m-0 text-light">🎛️ Multitrack DAW Pro <small class="text-muted fs-6 fw-normal">v4.2 (Fixed Audio Engine)</small></h2>
         </div>
         <div class="col-md-5">
             <div class="input-group input-group-sm">
@@ -59,7 +58,6 @@
 
                     <div class="col-md-4">
                         <h5 class="mb-3 text-secondary font-monospace">MASTER ANALYZER</h5>
-                        
                         <div class="master-strip mb-3 bg-dark border-secondary">
                             <h6 class="text-info fw-bold font-monospace mb-2">📊 REALTIME SPECTRUM METER</h6>
                             <canvas id="spectrumMeter" class="spectrum-canvas"></canvas>
@@ -103,15 +101,11 @@
 </div>
 
 <script>
-// ==========================================
-// CORE DATA STATE
-// ==========================================
 let audioCtx = null;
 let tracks = []; 
 let db = null;
 let activeSources = [];
 
-// NODES & VISUALIZER GLOBALS
 let masterGainNode = null;
 let busGainNode = null;
 let globalReverbNode = null;
@@ -123,7 +117,6 @@ let currentMasterVolume = 1.0;
 let currentBusVolume = 1.0;
 let currentGlobalReverbMix = 0.3;
 
-// INDEXEDDB DATABASE SETUP
 const request = indexedDB.open("UltimateDAW_DB", 4);
 request.onupgradeneeded = (e) => {
     db = e.target.result;
@@ -143,7 +136,7 @@ function saveTrackToDB(name, arrayBuffer) {
         volume: 0.8, 
         panning: 0,
         isMuted: false,
-        isBypassed: false, // State Bypass Efek
+        isBypassed: false,
         routingTarget: "master",
         fxSendLevel: 0.2,
         eqLow: 0, eqMid: 0, eqHigh: 0,
@@ -179,9 +172,6 @@ function importAudio(event) {
     event.target.value = "";
 }
 
-// ==========================================
-// RENDER MIXER CONSOLE UI
-// ==========================================
 function renderTracks() {
     const container = document.getElementById("tracksContainer");
     if (tracks.length === 0) {
@@ -253,38 +243,38 @@ function renderTracks() {
     `).join('');
 }
 
-// ==========================================
-// REALTIME GRAPH AUDIO PROCESSING ENGINE
-// ==========================================
 async function playAll() {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') await audioCtx.resume();
+    // FIX: Alur instansiasi AudioContext yang bersih dan tahan crash
+    if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass();
+    }
+    
+    if (audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+    }
     
     stopAll();
     if (tracks.length === 0) return;
 
     const playBtn = document.getElementById("btnPlay");
-    playBtn.innerHTML = "⏳ Buffering System...";
+    playBtn.innerHTML = "⏳ Decoding System...";
     playBtn.className = "btn btn-warning px-4 fw-bold";
 
-    // Build Master Infrastructure Nodes
     masterGainNode = audioCtx.createGain();
     masterGainNode.gain.setValueAtTime(currentMasterVolume, audioCtx.currentTime);
 
-    // Build Master Realtime Frequency Analyzer Node
+    // FIX: Dipastikan instansiasi object Analyzer dipanggil langsung dari context yang valid
     masterAnalyzerNode = audioCtx.createAnalyzer();
     masterAnalyzerNode.fftSize = 256;
     
-    // Topology Connection: Master Gain -> Analyzer Node -> Hardware Destination Speakers
     masterGainNode.connect(masterAnalyzerNode);
     masterAnalyzerNode.connect(audioCtx.destination);
 
-    // Build Group Bus Lane B1
     busGainNode = audioCtx.createGain();
     busGainNode.gain.setValueAtTime(currentBusVolume, audioCtx.currentTime);
     busGainNode.connect(masterGainNode);
 
-    // Build Parallel Shared FX Auxiliary Return (Reverb Node)
     globalReverbNode = audioCtx.createConvolver();
     globalReverbNode.buffer = createSyntheticImpulse(2.0, 1.5);
     globalReverbGainNode = audioCtx.createGain();
@@ -293,7 +283,8 @@ async function playAll() {
     globalReverbNode.connect(globalReverbGainNode);
     globalReverbGainNode.connect(masterGainNode);
 
-    // Routing System Configuration Per-Track
+    let loadedCount = 0;
+
     tracks.forEach((track) => {
         const bufferCopy = track.audioData.slice(0);
         
@@ -301,16 +292,13 @@ async function playAll() {
             const source = audioCtx.createBufferSource();
             source.buffer = audioBuffer;
 
-            // Parametric Hardware EQ Module
             const eqLowNode = audioCtx.createBiquadFilter(); eqLowNode.type = "lowshelf"; eqLowNode.frequency.value = 80;
             const eqMidNode = audioCtx.createBiquadFilter(); eqMidNode.type = "peaking"; eqMidNode.frequency.value = 1000;
             const eqHighNode = audioCtx.createBiquadFilter(); eqHighNode.type = "highshelf"; eqHighNode.frequency.value = 10000;
 
-            // Compressor Module
             const compNode = audioCtx.createDynamicsCompressor();
             compNode.ratio.setValueAtTime(4.0, audioCtx.currentTime);
 
-            // Terapkan nilai awal parameter atau bypass jika aktif
             if (track.isBypassed) {
                 eqLowNode.gain.setValueAtTime(0, audioCtx.currentTime);
                 eqMidNode.gain.setValueAtTime(0, audioCtx.currentTime);
@@ -323,7 +311,6 @@ async function playAll() {
                 compNode.threshold.setValueAtTime(track.compThreshold, audioCtx.currentTime);
             }
 
-            // Main Channel Gain & Stereo Field Panner
             const gainNode = audioCtx.createGain();
             const targetVolume = track.isMuted ? 0 : track.volume;
             gainNode.gain.setValueAtTime(targetVolume, audioCtx.currentTime);
@@ -331,12 +318,10 @@ async function playAll() {
             const pannerNode = audioCtx.createStereoPanner();
             pannerNode.pan.setValueAtTime(track.panning, audioCtx.currentTime);
 
-            // Auxiliary FX Send Level
             const fxSendGainNode = audioCtx.createGain();
             const targetFxSend = track.isBypassed ? 0 : track.fxSendLevel;
             fxSendGainNode.gain.setValueAtTime(targetFxSend, audioCtx.currentTime);
 
-            // CONNECTING MATRIX HARDWARE CHAIN
             source.connect(eqLowNode);
             eqLowNode.connect(eqMidNode);
             eqMidNode.connect(eqHighNode);
@@ -345,31 +330,35 @@ async function playAll() {
             compNode.connect(gainNode);
             gainNode.connect(pannerNode);
 
-            // Channel Output Lane Target Selection Matrix
             if (track.routingTarget === "bus1") {
                 pannerNode.connect(busGainNode);
             } else {
                 pannerNode.connect(masterGainNode);
             }
 
-            // Route Aux Send Level Parallel to FX Reverb Bus
             compNode.connect(fxSendGainNode);
             fxSendGainNode.connect(globalReverbNode);
 
             source.start(0);
 
-            // Track Pointer Nodes Allocation
             activeSources.push({
                 id: track.id,
                 source, eqLowNode, eqMidNode, eqHighNode, compNode, gainNode, pannerNode, fxSendGainNode
             });
 
-            playBtn.innerHTML = "⏸ Playing Mix Session";
-            playBtn.className = "btn btn-info px-4 fw-bold";
+            loadedCount++;
+            if (loadedCount === tracks.length) {
+                playBtn.innerHTML = "⏸ Playing Mix Session";
+                playBtn.className = "btn btn-info px-4 fw-bold";
+            }
+        }).catch(err => {
+            console.error("Gagal melakukan decoding berkas audio: ", err);
+            if (loadedCount === 0 && activeSources.length === 0) {
+                resetPlayButtonState();
+            }
         });
     });
 
-    // Jalankan visualizer grafik frekuensi spectrum master
     startSpectrumVisualization();
 }
 
@@ -377,6 +366,10 @@ function stopAll() {
     if (animationFrameId) cancelAnimationFrame(animationFrameId);
     activeSources.forEach(s => { try { s.source.stop(); } catch(e){} });
     activeSources = [];
+    resetPlayButtonState();
+}
+
+function resetPlayButtonState() {
     const playBtn = document.getElementById("btnPlay");
     if (playBtn) { playBtn.innerHTML = "▶ Play Session"; playBtn.className = "btn btn-success px-4 fw-bold"; }
 }
@@ -394,17 +387,11 @@ function createSyntheticImpulse(duration, decay) {
     return impulse;
 }
 
-// ==========================================
-// FIX BUG FADER: REALTIME DOM VALUE MANAGEMENT
-// ==========================================
 function liveParamUpdate(index, paramName, value) {
     if (paramName !== 'routingTarget') value = parseFloat(value);
-    
-    // Simpan nilai parameter ke database state RAM lokal
     tracks[index][paramName] = value;
     const active = activeSources.find(s => s.id === tracks[index].id);
 
-    // Manipulasi Text Label DOM Secara Langsung Tanpa Render Ulang Baris Fader!
     switch(paramName) {
         case 'volume': 
             document.getElementById(`v-vol-${index}`).innerText = Math.round(value * 100);
@@ -444,7 +431,6 @@ function liveParamUpdate(index, paramName, value) {
     }
 }
 
-// ACTIONS CONTROLLER MUTE & BYPASS
 function toggleMute(index) {
     tracks[index].isMuted = !tracks[index].isMuted;
     const strip = document.getElementById(`strip-${index}`);
@@ -473,14 +459,12 @@ function toggleBypass(index) {
     const active = activeSources.find(s => s.id === tracks[index].id);
     if (active && audioCtx) {
         if (tracks[index].isBypassed) {
-            // Bypass aktif = Flat parameter (0 dB EQ & 0 dB Threshold Comp)
             active.eqLowNode.gain.setValueAtTime(0, audioCtx.currentTime);
             active.eqMidNode.gain.setValueAtTime(0, audioCtx.currentTime);
             active.eqHighNode.gain.setValueAtTime(0, audioCtx.currentTime);
             active.compNode.threshold.setValueAtTime(0, audioCtx.currentTime);
             active.fxSendGainNode.gain.setValueAtTime(0, audioCtx.currentTime);
         } else {
-            // Kembalikan parameter mixing asal
             active.eqLowNode.gain.setValueAtTime(tracks[index].eqLow, audioCtx.currentTime);
             active.eqMidNode.gain.setValueAtTime(tracks[index].eqMid, audioCtx.currentTime);
             active.eqHighNode.gain.setValueAtTime(tracks[index].eqHigh, audioCtx.currentTime);
@@ -490,7 +474,6 @@ function toggleBypass(index) {
     }
 }
 
-// CONTROLLER CONSOLE MASTER LALU LINTAS SINYAL
 function updateMasterVolume(val) {
     currentMasterVolume = parseFloat(val);
     document.getElementById("txtMasterVol").innerText = Math.round(currentMasterVolume * 100);
@@ -509,12 +492,10 @@ function updateGlobalReverb(val) {
     if (globalReverbGainNode) globalReverbGainNode.gain.setValueAtTime(currentGlobalReverbMix, audioCtx.currentTime);
 }
 
-// ==========================================
-// ADVANCED DISPLAY: STATIC AUDIO WAVEFORM GENERATOR
-// ==========================================
 function drawAllStaticWaveforms() {
-    // Inisialisasi AudioContext lokal sementara untuk ekstraksi puncak gelombang audio
-    const offlineCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const OfflineContextClass = window.OfflineAudioContext || window.webkitOfflineAudioContext || window.AudioContext;
+    const offlineCtx = new OfflineContextClass(1, 44100, 44100);
+    
     tracks.forEach((track, index) => {
         const canvas = document.getElementById(`waveCanvas-${index}`);
         if (!canvas) return;
@@ -522,8 +503,8 @@ function drawAllStaticWaveforms() {
         const bufferCopy = track.audioData.slice(0);
 
         offlineCtx.decodeAudioData(bufferCopy).then((audioBuffer) => {
-            const rawData = audioBuffer.getChannelData(0); // Ambil data kanal Left channel
-            const samples = 120; // Resolusi baris wave garis vertikal
+            const rawData = audioBuffer.getChannelData(0); 
+            const samples = 120; 
             const blockSize = Math.floor(rawData.length / samples);
             let peaks = [];
 
@@ -536,24 +517,20 @@ function drawAllStaticWaveforms() {
                 peaks.push(sum / blockSize);
             }
 
-            // Mulai Menggambar ke Canvas Strip
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = "#3b82f6";
             const w = canvas.width / peaks.length;
             
             peaks.forEach((peak, pIdx) => {
-                const h = peak * canvas.height * 2.5; // Mengatur faktor skala grafik tinggi wave
+                const h = peak * canvas.height * 2.5; 
                 const x = pIdx * w;
                 const y = (canvas.height - h) / 2;
                 ctx.fillRect(x, y, w - 1, h);
             });
-        });
+        }).catch(err => console.error("Waveform error: ", err));
     });
 }
 
-// ==========================================
-// ADVANCED DISPLAY: MASTER SPECTRUM FREQUENCY VISUALIZER
-// ==========================================
 function startSpectrumVisualization() {
     const canvas = document.getElementById("spectrumMeter");
     const ctx = canvas.getContext("2d");
@@ -573,24 +550,18 @@ function startSpectrumVisualization() {
 
         for (let i = 0; i < bufferLength; i++) {
             barHeight = dataArray[i] / 1.8;
-
-            // Efek Gradasi Warna Spektrum Hijau Kuning Merah Pro DAW
             const r = barHeight + (25 * (i / bufferLength));
             const g = 250 * (1 - (i / bufferLength));
             const b = 150;
 
             ctx.fillStyle = `rgb(${r},${g},${b})`;
             ctx.fillRect(x, canvas.height - barHeight, barWidth - 1, barHeight);
-
             x += barWidth;
         }
     }
     draw();
 }
 
-// ==========================================
-// DEEPSEEK CORE INTEGRATION
-// ==========================================
 async function askAiAssistant() {
     const apiKey = document.getElementById("apiKey").value;
     const aiOutput = document.getElementById("aiOutput");
@@ -610,7 +581,7 @@ async function askAiAssistant() {
         }))
     };
 
-    const prompt = `Anda adalah Sound Engineer Profesional Senior. Berikan analisis taktis mengenai session mixing berikut: ${JSON.stringify(snapshot)}. Berikan rekomendasi angka fader, pembagian EQ, penanganan gain staging bus, status bypass, serta manajemen reverb return. Sampaikan dengan ringkas, padat, langsung ke angka tujuan, menggunakan Bahasa Indonesia profesional.`;
+    const prompt = `Anda adalah Sound Engineer Senior. Berikan analisis taktis mengenai session mixing berikut: ${JSON.stringify(snapshot)}. Berikan rekomendasi angka fader, pembagian EQ, penanganan gain staging bus, status bypass, serta manajemen reverb return. Sampaikan dengan ringkas, padat, langsung ke angka tujuan, menggunakan Bahasa Indonesia profesional.`;
 
     try {
         const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
@@ -623,6 +594,11 @@ async function askAiAssistant() {
         if (data.choices && data.choices[0]) aiOutput.innerHTML = data.choices[0].message.content.replace(/\n/g, "<br>");
     } catch (err) { aiOutput.innerHTML = `<span class="text-danger">🚨 Error: ${err.message}</span>`; }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("txtMasterVol").innerText = Math.round(currentMasterVolume * 100);
+    document.getElementById("txtBusVol").innerText = Math.round(currentBusVolume * 100);
+});
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
