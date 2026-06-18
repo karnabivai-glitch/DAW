@@ -60,8 +60,10 @@
         <div class="col-md-5">
             <div class="input-group input-group-sm">
                 <span class="input-group-text bg-dark text-secondary border-secondary">DeepSeek Key</span>
-                <input type="password" id="apiKey" class="form-control bg-dark text-light border-secondary" placeholder="API Key...">
+                <input type="password" id="apiKey" class="form-control bg-dark text-light border-secondary" placeholder="API Key..." autocomplete="off" spellcheck="false">
+                <button class="btn btn-outline-secondary" type="button" title="Hapus key dari memori browser" onclick="clearApiKey()">✕</button>
             </div>
+            <div class="form-text text-warning" style="font-size:10px; line-height:1.3;">⚠️ Key dikirim langsung dari browser ke DeepSeek (terlihat di tab Network). Jangan share file ini saat key terisi.</div>
         </div>
     </div>
 
@@ -244,6 +246,22 @@ function deleteTrack(id) {
         playTimeOffset = 0;
         loadTracksFromDB();
     };
+}
+
+// PERSISTENSI PARAMETER MIXING KE INDEXEDDB (debounced supaya tidak menulis tiap frame saat drag knob)
+let dbSaveTimers = {};
+function persistTrackState(index) {
+    const track = tracks[index];
+    if (!track || !db || track.id === undefined) return;
+    clearTimeout(dbSaveTimers[track.id]);
+    dbSaveTimers[track.id] = setTimeout(() => {
+        try {
+            const tx = db.transaction(["audio_tracks"], "readwrite");
+            tx.objectStore("audio_tracks").put(track);
+        } catch (err) {
+            console.error("Gagal menyimpan parameter track ke IndexedDB:", err);
+        }
+    }, 400);
 }
 
 function importAudio(event) {
@@ -603,6 +621,7 @@ function toggleBypass(index) {
             active.fxSendGainNode.gain.setValueAtTime(tracks[index].fxSendLevel, time);
         }
     }
+    persistTrackState(index);
 }
 
 function toggleMute(index) {
@@ -620,6 +639,7 @@ function toggleMute(index) {
     if (active && audioCtx) {
         active.gainNode.gain.setValueAtTime(tracks[index].isMuted ? 0 : tracks[index].volume, audioCtx.currentTime);
     }
+    persistTrackState(index);
 }
 
 function togglePlayState() {
@@ -870,6 +890,7 @@ function createSyntheticImpulse(duration, decay) {
 function liveParamUpdate(index, paramName, value) {
     if (paramName !== 'routingTarget') value = parseFloat(value);
     tracks[index][paramName] = value;
+    persistTrackState(index);
     const active = activeSources.find(s => s.id === tracks[index].id);
 
     const labelMap = { 
@@ -914,6 +935,17 @@ function updateMasterVolume(val) { currentMasterVolume = parseFloat(val); docume
 function updateBusVolume(val) { currentBusVolume = parseFloat(val); document.getElementById("txtBusVol").innerText = Math.round(currentBusVolume*100); if(busGainNode) busGainNode.gain.setValueAtTime(currentBusVolume, audioCtx.currentTime); }
 function updateGlobalReverb(val) { currentGlobalReverbMix = parseFloat(val); document.getElementById("txtGlobalRev").innerText = Math.round(currentGlobalReverbMix*100); if(globalReverbGainNode) globalReverbGainNode.gain.setValueAtTime(currentGlobalReverbMix, audioCtx.currentTime); }
 
+// Escape HTML supaya input user & balasan AI tidak bisa menyuntik markup/script ke dalam chat box
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = String(str);
+    return div.innerHTML;
+}
+
+function clearApiKey() {
+    document.getElementById("apiKey").value = "";
+}
+
 // INTELLIGENT AI SYSTEM CHAT DRIVER INTERACTION
 async function sendPromptToAI() {
     const apiKey = document.getElementById("apiKey").value.trim();
@@ -922,7 +954,7 @@ async function sendPromptToAI() {
     if (!prompt) return;
 
     const chatBox = document.getElementById("aiOutput");
-    chatBox.innerHTML += `<br><span class='text-warning'>[User]: ${prompt}</span>`;
+    chatBox.innerHTML += `<br><span class='text-warning'>[User]: ${escapeHtml(prompt)}</span>`;
     inputEl.value = "";
     chatBox.scrollTop = chatBox.scrollHeight;
 
@@ -943,11 +975,16 @@ async function sendPromptToAI() {
                 ]
             })
         });
+        if (!response.ok) {
+            const errText = await response.text().catch(() => "");
+            throw new Error(`HTTP ${response.status} ${errText.slice(0, 200)}`);
+        }
         const data = await response.json();
-        const reply = data.choices[0].message.content;
-        chatBox.innerHTML += `<br><span class='text-info'>[AI Assistant]: ${reply}</span>`;
+        const reply = data?.choices?.[0]?.message?.content;
+        if (!reply) throw new Error("Format respons API tidak dikenali.");
+        chatBox.innerHTML += `<br><span class='text-info'>[AI Assistant]: ${escapeHtml(reply)}</span>`;
     } catch (err) {
-        chatBox.innerHTML += `<br><span class='text-danger'>[System Error]: Gagal menghubungi server AI.</span>`;
+        chatBox.innerHTML += `<br><span class='text-danger'>[System Error]: Gagal menghubungi server AI (${escapeHtml(err.message || "unknown")}).</span>`;
     }
     chatBox.scrollTop = chatBox.scrollHeight;
 }
