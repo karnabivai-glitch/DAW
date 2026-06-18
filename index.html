@@ -3,101 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Multitrack DAW - Ultimate Mixer Suite</title>
+    <title>Enterprise Professional DAW Studio v5.3</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #090d16; color: #f1f5f9; font-family: 'Segoe UI', system-ui, sans-serif; }
-        .daw-wrapper { background: #111c30; border-radius: 14px; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.7); border: 1px solid #1e293b; }
-        .track-strip { background: #070a12; margin-bottom: 14px; padding: 16px; border-radius: 8px; border: 1px solid #1e293b; border-left: 6px solid #3b82f6; }
-        .track-strip.muted { border-left-color: #475569; opacity: 0.4; }
-        .track-strip.bypassed { border-left-color: #eab308; }
-        .master-strip { background: #1e1b4b; border-radius: 10px; padding: 20px; border: 1px solid #4338ca; }
-        .fx-rack { background: #151f32; padding: 14px; border-radius: 6px; margin-top: 12px; border: 1px solid #22314d; }
-        .ai-console { background: #020617; border-radius: 8px; padding: 20px; border: 1px solid #1e3a8a; height: 100%; }
-        .val-label { font-size: 11px; font-family: monospace; color: #38bdf8; }
-        .wave-canvas { background: #1e293b; border-radius: 4px; width: 100%; height: 40px; display: block; margin-top: 6px; }
-        .spectrum-canvas { background: #020617; border: 1px solid #334155; width: 100%; height: 120px; border-radius: 6px; }
-        #aiOutput { font-size: 13px; line-height: 1.6; max-height: 520px; overflow-y: auto; color: #cbd5e1; font-family: monospace; }
+        body { background-color: #060913; color: #f1f5f9; font-family: 'Segoe UI', system-ui, sans-serif; overflow-x: hidden; }
+        .daw-wrapper { background: #0b1324; border-radius: 12px; padding: 20px; box-shadow: 0 25px 60px rgba(0,0,0,0.8); border: 1px solid #1e293b; }
+        
+        /* Premium Studio Linear Track Strip Layout */
+        .track-container-box { display: flex; flex-direction: column; gap: 6px; }
+        .track-strip { display: grid; grid-template-columns: 200px 1fr 180px 220px; gap: 15px; align-items: center; background: #020617; padding: 10px 16px; border-radius: 6px; border: 1px solid #1e293b; border-left: 5px solid #3b82f6; transition: all 0.2s ease; }
+        .track-strip.muted-active { border-left-color: #475569; background: #090f1e; opacity: 0.5; }
+        .track-strip.bypassed-active { border-left-color: #f59e0b; }
+        
+        /* Track Header Control */
+        .track-meta { display: flex; flex-direction: column; gap: 4px; justify-content: center; min-width: 0; }
+        .track-title { font-size: 13px; font-weight: 600; color: #f1f5f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; }
+
+        /* Waveform Timeline Core */
+        .waveform-wrapper { position: relative; width: 100%; height: 46px; background: #040712; border: 1px solid #131c33; border-radius: 4px; overflow: hidden; cursor: pointer; }
+        .waveform-canvas { width: 100%; height: 100%; display: block; }
+        .playhead-bar { position: absolute; top: 0; bottom: 0; left: 0; width: 2px; background-color: #ef4444; box-shadow: 0 0 8px #ef4444; pointer-events: none; z-index: 5; }
+
+        .val-label { font-size: 11px; font-family: monospace; color: #38bdf8; display: block; }
+        .gr-title-lbl { font-size: 11px; font-family: monospace; color: #f8fafc; font-weight: bold; }
+        
+        /* Symmetrical Gain Reduction Components */
+        .gr-meter-box { width: 100%; background: #1e293b; height: 10px; border-radius: 3px; overflow: hidden; position: relative; border: 1px solid #475569; }
+        .gr-meter-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #f97316, #ef4444); position: absolute; right: 0; will-change: width; transition: width 0.05s ease; }
+        .spectrum-canvas { background: #020617; border: 1px solid #1e293b; width: 100%; height: 220px; border-radius: 6px; }
+        .eq-graph-canvas { background: #01040a; border: 1px solid #1e293b; width: 100%; height: 150px; border-radius: 6px; }
+
+        /* Symmetrical Plugin Rack Modal Design */
+        .modal-content { background-color: #0b1324; border: 1px solid #334155; color: #f1f5f9; border-radius: 10px; }
+        .modal-header { border-bottom: 1px solid #1e293b; background-color: #020617; padding: 12px 16px; border-top-left-radius: 9px; border-top-right-radius: 9px; }
+        .fx-box { background: #020617; border: 1px solid #1e293b; border-radius: 6px; padding: 15px; width: 100%; }
+
+        /* --- SYMMETRICAL CSS ROTARY ANALOG KNOB DESIGN --- */
+        .knob-grid { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; align-items: center; width: 100%; }
+        .knob-container { display: flex; flex-direction: column; align-items: center; width: 80px; text-align: center; }
+        .knob-surround { position: relative; width: 46px; height: 46px; border-radius: 50%; background: #131c33; border: 2px solid #334155; display: flex; align-items: center; justify-content: center; cursor: ns-resize; margin-bottom: 6px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); }
+        .knob-dial { position: relative; width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #475569 0%, #020617 100%); border: 1px solid #475569; transform: rotate(-135deg); will-change: transform; }
+        .knob-dial::after { content: ''; position: absolute; top: 2px; left: 50%; width: 2px; height: 8px; background-color: #38bdf8; transform: translateX(-50%); border-radius: 1px; box-shadow: 0 0 4px #38bdf8; }
+        .knob-title { font-size: 10px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; margin-top: 2px; }
+
+        /* AI Assistant Bot Layout */
+        .ai-chat-box { background: #020617; border: 1px solid #1e293b; border-radius: 6px; padding: 10px; height: 320px; overflow-y: auto; font-size: 12px; font-family: monospace; }
     </style>
 </head>
 <body>
 
-<div class="container-fluid py-4">
-    <div class="row mb-4 align-items-center">
+<div class="container-fluid py-3">
+    <div class="row mb-3 align-items-center g-2">
         <div class="col-md-7">
-            <h2 class="fw-bold m-0 text-light">🎛️ Multitrack DAW Pro <small class="text-muted fs-6 fw-normal">v4.2 (Fixed Audio Engine)</small></h2>
+            <h3 class="fw-bold m-0 text-light">🎛️ STUDIO ONE MIX ENGINE <small class="text-info fs-6 font-monospace">v5.3 Ultimate Master Suite</small></h3>
         </div>
         <div class="col-md-5">
             <div class="input-group input-group-sm">
                 <span class="input-group-text bg-dark text-secondary border-secondary">DeepSeek Key</span>
-                <input type="password" id="apiKey" class="form-control bg-dark text-light border-secondary" placeholder="Masukkan API Key Pemandu AI...">
+                <input type="password" id="apiKey" class="form-control bg-dark text-light border-secondary" placeholder="API Key...">
             </div>
         </div>
     </div>
 
     <div class="daw-wrapper">
-        <div class="d-flex flex-wrap gap-2 align-items-center mb-4 p-3 bg-dark rounded-3 border border-secondary">
-            <button class="btn btn-success px-4 fw-bold" id="btnPlay" onclick="playAll()">▶ Play Session</button>
-            <button class="btn btn-danger px-4 fw-bold" onclick="stopAll()">⏹ Stop</button>
-            <div class="ms-2">
-                <input type="file" id="audioImporter" class="form-control form-control-sm bg-secondary text-light d-none" accept="audio/*" multiple onchange="importAudio(event)">
-                <label for="audioImporter" class="btn btn-outline-light btn-sm m-0">➕ Import Multitrack Files</label>
+        <div class="d-flex flex-wrap gap-2 align-items-center mb-3 p-2 bg-dark rounded-3 border border-secondary">
+            <button class="btn btn-success btn-sm px-3 fw-bold" id="btnPlay" onclick="togglePlayState()">▶ Play</button>
+            <button class="btn btn-danger btn-sm px-3 fw-bold" onclick="stopSession()">⏹ Stop</button>
+            
+            <div class="text-light font-monospace bg-black px-2 py-1 rounded border border-secondary mx-2" style="font-size:13px;" id="txtTimelineClock">
+                00:00.00 / 00:00.00
             </div>
-            <button class="btn btn-primary btn-sm ms-md-auto" onclick="askAiAssistant()">🤖 Minta Panduan AI</button>
+
+            <div>
+                <input type="file" id="audioImporter" class="form-control form-control-sm bg-secondary text-light d-none" accept="audio/*" multiple onchange="importAudio(event)">
+                <label for="audioImporter" class="btn btn-outline-light btn-sm m-0">➕ Import Wave Tracks</label>
+            </div>
+
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#masterConsoleModal">📊 Master Out Console</button>
+            <button class="btn btn-warning btn-sm fw-bold text-dark" id="btnExport" onclick="triggerMixdownBounce()">💾 Export Audio Mixdown</button>
+            <span id="exportStatus" class="text-info font-monospace ms-2" style="font-size:12px;"></span>
         </div>
 
-        <div class="row g-4">
-            <div class="col-lg-9">
+        <div class="row g-3">
+            <div class="col-lg-8">
+                <div id="tracksContainer" class="track-container-box">
+                    <p class="text-muted text-center my-5 font-monospace" style="font-size:13px;">Belum ada track terpasang. Unggah file audio Anda.</p>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="p-3 bg-dark rounded border border-secondary h-100 d-flex flex-column">
+                    <h6 class="fw-bold text-info font-monospace m-0">🤖 AI MIXING ASSISTANT ROBOT</h6>
+                    <hr class="border-secondary my-2">
+                    <div id="aiOutput" class="ai-chat-box mb-2">
+                        [Sistem v5.3]: Siap membantu proses balancing. Frekuensi Spektrum terkalibrasi, Indikator GR diperjelas, dan modul export telah terpasang di Master Main Out. Silakan ajukan pertanyaan atau berikan perintah mixing.
+                    </div>
+                    <div class="input-group input-group-sm">
+                        <input type="text" id="aiInput" class="form-control bg-black text-light border-secondary" placeholder="Tanyakan saran EQ/Comp track...">
+                        <button class="btn btn-info text-dark fw-bold" onclick="sendPromptToAI()">Kirim</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="masterConsoleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title text-info fw-bold font-monospace">📊 MAIN CONSOLE & STEREO REAL-TIME ANALYZER</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
                 <div class="row g-3">
                     <div class="col-md-8">
-                        <h5 class="mb-3 text-secondary font-monospace">CHANNELS CONSOLE</h5>
-                        <div id="tracksContainer">
-                            <p class="text-muted text-center my-5">Belum ada track. Silakan import berkas audio.</p>
-                        </div>
+                        <canvas id="spectrumMeter" class="spectrum-canvas"></canvas>
                     </div>
-
-                    <div class="col-md-4">
-                        <h5 class="mb-3 text-secondary font-monospace">MASTER ANALYZER</h5>
-                        <div class="master-strip mb-3 bg-dark border-secondary">
-                            <h6 class="text-info fw-bold font-monospace mb-2">📊 REALTIME SPECTRUM METER</h6>
-                            <canvas id="spectrumMeter" class="spectrum-canvas"></canvas>
-                            <div class="d-flex justify-content-between text-muted font-monospace" style="font-size: 9px;">
-                                <span>20Hz</span><span>1kHz</span><span>5kHz</span><span>20kHz</span>
-                            </div>
-                        </div>
-
-                        <div class="master-strip mb-3 bg-dark border-secondary">
-                            <h6 class="text-warning fw-bold font-monospace">🚌 BUS GROUP (B1)</h6>
-                            <span class="val-label mb-1">BUS GAIN: <span id="txtBusVol">100</span>%</span>
+                    <div class="col-md-4 d-flex flex-column gap-2">
+                        <div class="p-2 bg-dark rounded border border-secondary">
+                            <h6 class="text-warning fw-bold font-monospace m-0" style="font-size:12px;">🚌 SUB-BUS GROUP (B1)</h6>
+                            <span class="val-label d-block my-1">BUS GAIN: <span id="txtBusVol">100</span>%</span>
                             <input type="range" class="form-range" min="0" max="1.5" step="0.02" value="1.0" oninput="updateBusVolume(this.value)">
                         </div>
-
-                        <div class="master-strip">
-                            <h5 class="text-danger fw-bold font-monospace mb-3">👑 MASTER OUT</h5>
-                            <div class="mb-3">
-                                <span class="val-label mb-1 text-light">MASTER FADER: <span id="txtMasterVol">100</span>%</span>
+                        <div class="p-2 bg-dark rounded border border-secondary flex-grow-1">
+                            <h6 class="text-danger fw-bold font-monospace m-0" style="font-size:12px;">👑 MASTER STEREO MAIN OUT</h6>
+                            <div class="my-2">
+                                <span class="val-label d-block mb-1">MASTER FADER: <span id="txtMasterVol">100</span>%</span>
                                 <input type="range" class="form-range" min="0" max="1.5" step="0.02" value="1.0" oninput="updateMasterVolume(this.value)">
                             </div>
                             <div>
-                                <span class="val-label text-info mb-1">GLOBAL REVERB RETURN: <span id="txtGlobalRev">30</span>%</span>
+                                <span class="val-label d-block text-info mb-1">REVERB RETURN: <span id="txtGlobalRev">30</span>%</span>
                                 <input type="range" class="form-range" min="0" max="1.0" step="0.05" value="0.3" oninput="updateGlobalReverb(this.value)">
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div class="col-lg-3">
-                <div class="ai-console">
-                    <h5 class="fw-bold text-info">🧠 AI Brain Assistant</h5>
-                    <hr class="border-secondary my-3">
-                    <div id="aiOutput">
-                        Sistem multitrack dengan visualizer frekuensi siap dijalankan. Masukkan API key untuk panduan.
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
+</div>
+
+<div class="modal fade" id="eqPluginModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered"><div class="modal-content" id="eqModalContent"></div></div>
+</div>
+<div class="modal fade" id="compPluginModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered"><div class="modal-content" id="compModalContent"></div></div>
+</div>
+<div class="modal fade" id="delayPluginModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered"><div class="modal-content" id="delayModalContent"></div></div>
 </div>
 
 <script>
@@ -111,13 +165,23 @@ let busGainNode = null;
 let globalReverbNode = null;
 let globalReverbGainNode = null;
 let masterAnalyzerNode = null;
-let animationFrameId = null;
+
+let isPlaying = false;
+let startTime = 0;             
+let playTimeOffset = 0;        
+let totalDuration = 0;         
+let animationFrameId = null;   
 
 let currentMasterVolume = 1.0;
 let currentBusVolume = 1.0;
 let currentGlobalReverbMix = 0.3;
 
-const request = indexedDB.open("UltimateDAW_DB", 4);
+// Export / Mixdown state
+let mediaRecorder = null;
+let recordedChunks = [];
+let isExporting = false;
+
+const request = indexedDB.open("ProMixingDAW_DBv53", 6);
 request.onupgradeneeded = (e) => {
     db = e.target.result;
     if (!db.objectStoreNames.contains("audio_tracks")) {
@@ -127,23 +191,31 @@ request.onupgradeneeded = (e) => {
 request.onsuccess = (e) => { db = e.target.result; loadTracksFromDB(); };
 
 function saveTrackToDB(name, arrayBuffer) {
-    const transaction = db.transaction(["audio_tracks"], "readwrite");
-    const store = transaction.objectStore("audio_tracks");
-    
-    const trackData = { 
-        name: name, 
-        audioData: arrayBuffer, 
-        volume: 0.8, 
-        panning: 0,
-        isMuted: false,
-        isBypassed: false,
-        routingTarget: "master",
-        fxSendLevel: 0.2,
-        eqLow: 0, eqMid: 0, eqHigh: 0,
-        compThreshold: -24
-    };
-    
-    store.add(trackData).onsuccess = () => loadTracksFromDB();
+    const ctxDummy = new (window.AudioContext || window.webkitAudioContext)();
+    ctxDummy.decodeAudioData(arrayBuffer.slice(0)).then(audioBuffer => {
+        const transaction = db.transaction(["audio_tracks"], "readwrite");
+        const store = transaction.objectStore("audio_tracks");
+        
+        const channelData = audioBuffer.getChannelData(0);
+        const step = Math.ceil(channelData.length / 400);
+        const rawWavePoints = [];
+        for (let i = 0; i < 400; i++) {
+            let max = 0;
+            for (let j = 0; j < step; j++) {
+                const val = Math.abs(channelData[(i * step) + j] || 0);
+                if (val > max) max = val;
+            }
+            rawWavePoints.push(parseFloat(max.toFixed(3)));
+        }
+
+        store.add({ 
+            name: name, audioData: arrayBuffer, duration: audioBuffer.duration, wavePoints: rawWavePoints,
+            volume: 0.8, panning: 0, isMuted: false, isBypassed: false, routingTarget: "master", fxSendLevel: 0.1, 
+            eqLow: 0, eqMid: 0, eqHigh: 0,
+            compThreshold: -24, compRatio: 4, compAttack: 0.02, compRelease: 0.20, compKnee: 20, compGain: 0,
+            delayTime: 0.3, delayFeedback: 0.25, delayMix: 0
+        }).onsuccess = () => { loadTracksFromDB(); ctxDummy.close(); };
+    });
 }
 
 function loadTracksFromDB() {
@@ -153,13 +225,25 @@ function loadTracksFromDB() {
     store.openCursor().onsuccess = (event) => {
         const cursor = event.target.result;
         if (cursor) { tracks.push(cursor.value); cursor.continue(); } 
-        else { renderTracks(); drawAllStaticWaveforms(); }
+        else { 
+            calculateTotalDuration();
+            renderTracks();
+            setTimeout(drawAllWaveforms, 150);
+        }
     };
 }
 
+function calculateTotalDuration() {
+    totalDuration = tracks.reduce((max, track) => track.duration > max ? track.duration : max, 0);
+    updateClockUI();
+}
+
 function deleteTrack(id) {
-    stopAll();
-    db.transaction(["audio_tracks"], "readwrite").objectStore("audio_tracks").delete(id).onsuccess = () => loadTracksFromDB();
+    stopSession();
+    db.transaction(["audio_tracks"], "readwrite").objectStore("audio_tracks").delete(id).onsuccess = () => {
+        playTimeOffset = 0;
+        loadTracksFromDB();
+    };
 }
 
 function importAudio(event) {
@@ -172,102 +256,419 @@ function importAudio(event) {
     event.target.value = "";
 }
 
+function formatTime(secs) {
+    let m = Math.floor(secs / 60); let s = Math.floor(secs % 60);
+    let ms = Math.floor((secs % 1) * 100);
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
+}
+
+function updateClockUI() {
+    document.getElementById("txtTimelineClock").innerText = `${formatTime(playTimeOffset)} / ${formatTime(totalDuration)}`;
+}
+
 function renderTracks() {
     const container = document.getElementById("tracksContainer");
     if (tracks.length === 0) {
-        container.innerHTML = `<p class="text-muted text-center my-5">Belum ada track. Silakan import berkas audio.</p>`;
+        container.innerHTML = `<p class="text-muted text-center my-5 font-monospace" style="font-size:13px;">Belum ada track terpasang. Unggah file audio Anda.</p>`;
         return;
     }
 
     container.innerHTML = tracks.map((track, index) => `
-        <div class="track-strip ${track.isMuted ? 'muted' : ''} ${track.isBypassed ? 'bypassed' : ''}" id="strip-${index}">
-            <div class="row align-items-center">
-                <div class="col-md-4">
-                    <h6 class="text-truncate mb-1 fw-bold text-light" title="${track.name}">${track.name}</h6>
-                    <div class="d-flex gap-1 align-items-center mb-2">
-                        <span class="badge bg-dark border border-secondary font-monospace text-info">CH ${index + 1}</span>
-                        <button class="btn btn-sm ${track.isMuted ? 'btn-danger' : 'btn-outline-warning'} py-0 px-2 btn-mute" onclick="toggleMute(${index})">MUTE</button>
-                        <button class="btn btn-sm ${track.isBypassed ? 'btn-warning text-dark' : 'btn-outline-secondary'} py-0 px-2" onclick="toggleBypass(${index})">BYPASS FX</button>
-                        <button class="btn btn-sm btn-link text-danger p-0 ms-2" style="font-size:11px;" onclick="deleteTrack(${track.id})">Delete</button>
-                    </div>
-                    <canvas class="wave-canvas" id="waveCanvas-${index}"></canvas>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="mb-1">
-                        <span class="val-label">VOLUME: <span id="v-vol-${index}">${Math.round(track.volume * 100)}</span>%</span>
-                        <input type="range" class="form-range" min="0" max="1.5" step="0.02" value="${track.volume}" oninput="liveParamUpdate(${index}, 'volume', this.value)">
-                    </div>
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <span class="val-label">PAN: <span id="v-pan-${index}">${track.panning}</span></span>
-                            <input type="range" class="form-range" min="-1" max="1" step="0.1" value="${track.panning}" oninput="liveParamUpdate(${index}, 'panning', this.value)">
-                        </div>
-                        <div class="col-6">
-                            <span class="val-label text-info">FX SEND: <span id="v-fx-${index}">${Math.round(track.fxSendLevel * 100)}</span>%</span>
-                            <input type="range" class="form-range" min="0" max="1.0" step="0.05" value="${track.fxSendLevel}" oninput="liveParamUpdate(${index}, 'fxSendLevel', this.value)">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <span class="val-label text-warning mb-1">ROUTING OUT</span>
-                    <select class="form-select form-select-sm bg-dark text-light border-secondary font-monospace" onchange="liveParamUpdate(${index}, 'routingTarget', this.value)">
-                        <option value="master" ${track.routingTarget === 'master' ? 'selected' : ''}>DIRECT MASTER</option>
-                        <option value="bus1" ${track.routingTarget === 'bus1' ? 'selected' : ''}>BUS GROUP (B1)</option>
-                    </select>
-                    <button class="btn btn-sm btn-outline-secondary w-100 text-start mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#fxRack-${index}" style="font-size:11px;">
-                        ⚙️ Channel Strip FX EQ & Compressor
-                    </button>
+        <div class="track-strip ${track.isMuted ? 'muted-active' : ''} ${track.isBypassed ? 'bypassed-active' : ''}" id="strip-${index}">
+            
+            <div class="track-meta">
+                <h6 class="track-title" title="${track.name}">${track.name}</h6>
+                <div class="d-flex gap-1 align-items-center">
+                    <button class="btn btn-sm ${track.isMuted ? 'btn-danger' : 'btn-outline-warning'} py-0 px-2 fw-bold" style="font-size:10px; height:20px;" onclick="toggleMute(${index})">MUTE</button>
+                    <button class="btn btn-sm ${track.isBypassed ? 'btn-warning text-dark' : 'btn-outline-secondary'} py-0 px-2 fw-bold" style="font-size:10px; height:20px;" onclick="toggleBypass(${index})">BYPASS</button>
+                    <button class="btn btn-sm btn-link text-danger p-0 ms-auto text-decoration-none" style="font-size:12px;" onclick="deleteTrack(${track.id})">🗑️</button>
                 </div>
             </div>
+            
+            <div class="waveform-wrapper" onclick="seekTimeline(event, this)">
+                <div class="playhead-bar" id="playhead-${index}"></div>
+                <canvas class="waveform-canvas" id="wave-canvas-${index}"></canvas>
+            </div>
 
-            <div class="collapse fx-rack" id="fxRack-${index}">
-                <div class="row g-2 font-monospace text-center" style="font-size:11px;">
-                    <div class="col-md-6 border-end border-secondary">
-                        <span class="val-label text-info text-start d-block mb-2">🎛️ 3-BAND EQ EQUALIZATION PARAMETER</span>
-                        <div class="d-flex gap-2 justify-content-center">
-                            <div>Low (80Hz)<input type="range" class="form-range" min="-12" max="12" value="${track.eqLow}" oninput="liveParamUpdate(${index}, 'eqLow', this.value)"><span id="v-eql-${index}">${track.eqLow}</span>dB</div>
-                            <div>Mid (1kHz)<input type="range" class="form-range" min="-12" max="12" value="${track.eqMid}" oninput="liveParamUpdate(${index}, 'eqMid', this.value)"><span id="v-eqm-${index}">${track.eqMid}</span>dB</div>
-                            <div>High (10kHz)<input type="range" class="form-range" min="-12" max="12" value="${track.eqHigh}" oninput="liveParamUpdate(${index}, 'eqHigh', this.value)"><span id="v-eqh-${index}">${track.eqHigh}</span>dB</div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 text-start ps-3">
-                        <span class="val-label text-success">📉 DYNAMICS HARD COMPRESSOR</span>
-                        <label class="val-label mt-1">Threshold: <span id="v-comp-${index}">${track.compThreshold}</span> dB</label>
-                        <input type="range" class="form-range" min="-60" max="0" value="${track.compThreshold}" oninput="liveParamUpdate(${index}, 'compThreshold', this.value)">
-                    </div>
-                </div>
+            <div class="px-1">
+                <span class="val-label">VOL: <span id="v-vol-${index}">${Math.round(track.volume * 100)}</span>%</span>
+                <input type="range" class="form-range" min="0" max="1.5" step="0.02" value="${track.volume}" oninput="liveParamUpdate(${index}, 'volume', this.value)">
+            </div>
+
+            <div class="d-flex gap-1 align-items-center justify-content-end">
+                <button class="btn btn-sm btn-outline-info fw-bold" style="font-size:11px; width:54px; height:28px;" onclick="openEqModal(${index})">EQ</button>
+                <button class="btn btn-sm btn-outline-success fw-bold" style="font-size:11px; width:64px; height:28px;" onclick="openCompModal(${index})">COMP</button>
+                <button class="btn btn-sm btn-outline-primary fw-bold" style="font-size:11px; width:64px; height:28px;" onclick="openDelayModal(${index})">DELAY</button>
             </div>
         </div>
     `).join('');
 }
 
-async function playAll() {
-    // FIX: Alur instansiasi AudioContext yang bersih dan tahan crash
-    if (!audioCtx) {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        audioCtx = new AudioContextClass();
-    }
-    
-    if (audioCtx.state === 'suspended') {
-        await audioCtx.resume();
-    }
-    
-    stopAll();
-    if (tracks.length === 0) return;
+function drawAllWaveforms() {
+    tracks.forEach((track, idx) => {
+        const canvas = document.getElementById(`wave-canvas-${idx}`);
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        const w = canvas.width = canvas.parentElement.clientWidth;
+        const h = canvas.height = canvas.parentElement.clientHeight;
+        
+        ctx.fillStyle = "#1b253c";
+        const pts = track.wavePoints || [];
+        const barWidth = w / pts.length;
+        
+        for (let i = 0; i < pts.length; i++) {
+            const val = pts[i] * h * 0.85;
+            ctx.fillRect(i * barWidth, (h / 2) - (val / 2), barWidth - 0.5, val);
+        }
+    });
+}
 
+function seekTimeline(e, element) {
+    if (isExporting) return;
+    const rect = element.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const percentage = clickX / rect.width;
+    playTimeOffset = percentage * totalDuration;
+    updateClockUI();
+    updatePlayheadsUI();
+    
+    if (isPlaying) {
+        stopActiveSourcesOnly();
+        spawnAudioNodeEngine();
+    }
+}
+
+function updatePlayheadsUI() {
+    tracks.forEach((track, index) => {
+        const playhead = document.getElementById(`playhead-${index}`);
+        if (playhead) {
+            const pct = (playTimeOffset / totalDuration) * 100;
+            playhead.style.left = `${Math.min(100, Math.max(0, pct))}%`;
+        }
+    });
+}
+
+// 1. MODAL EQUALIZER
+function openEqModal(index) {
+    const track = tracks[index];
+    document.getElementById("eqModalContent").innerHTML = `
+        <div class="modal-header">
+            <h6 class="modal-title text-info fw-bold font-monospace">🎛️ CH ${index + 1} - GRAPHIC PARAMETRIC EQ</h6>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body d-flex flex-column gap-3 align-items-center">
+            <div class="w-100 px-1">
+                <canvas id="eqGraphCanvas-${index}" class="eq-graph-canvas"></canvas>
+            </div>
+            <div class="fx-box">
+                <div class="knob-grid">
+                    <div class="knob-container">
+                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'eqLow', -12, 12, 1, 'eq')"><div class="knob-dial" id="k-eql-${index}"></div></div>
+                        <div class="knob-title">Low (80Hz)</div><div class="val-label text-light mt-1"><span id="v-eql-${index}">${track.eqLow}</span> dB</div>
+                    </div>
+                    <div class="knob-container">
+                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'eqMid', -12, 12, 1, 'eq')"><div class="knob-dial" id="k-eqm-${index}"></div></div>
+                        <div class="knob-title">Mid (1kHz)</div><div class="val-label text-light mt-1"><span id="v-eqm-${index}">${track.eqMid}</span> dB</div>
+                    </div>
+                    <div class="knob-container">
+                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'eqHigh', -12, 12, 1, 'eq')"><div class="knob-dial" id="k-eqh-${index}"></div></div>
+                        <div class="knob-title">High (10kHz)</div><div class="val-label text-light mt-1"><span id="v-eqh-${index}">${track.eqHigh}</span> dB</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    new bootstrap.Modal(document.getElementById('eqPluginModal')).show();
+    setTimeout(() => {
+        updateKnobRotationUI(index, 'eqLow', track.eqLow, -12, 12);
+        updateKnobRotationUI(index, 'eqMid', track.eqMid, -12, 12);
+        updateKnobRotationUI(index, 'eqHigh', track.eqHigh, -12, 12);
+        drawEqCurve(index);
+    }, 80);
+}
+
+function drawEqCurve(index) {
+    const canvas = document.getElementById(`eqGraphCanvas-${index}`);
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const t = tracks[index];
+    canvas.width = canvas.parentElement.clientWidth;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.strokeStyle = "#141d30"; ctx.lineWidth = 1;
+    for(let x=0; x<canvas.width; x+=canvas.width/4) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
+    ctx.beginPath(); ctx.moveTo(0, canvas.height/2); ctx.lineTo(canvas.width, canvas.height/2); ctx.stroke();
+
+    ctx.strokeStyle = "#38bdf8"; ctx.lineWidth = 2.5; ctx.beginPath();
+    for (let x = 0; x < canvas.width; x++) {
+        let pct = x / canvas.width; let gainContrib = 0;
+        if (pct < 0.3) gainContrib += t.eqLow * Math.cos((pct/0.3) * Math.PI/2);
+        let midDist = Math.abs(pct - 0.5);
+        if (midDist < 0.25) gainContrib += t.eqMid * Math.cos((midDist/0.25) * Math.PI/2);
+        if (pct > 0.7) gainContrib += t.eqHigh * Math.sin(((pct-0.7)/0.3) * Math.PI/2);
+
+        let y = (canvas.height / 2) - (gainContrib * (canvas.height / 28));
+        if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+}
+
+// 2. MODAL COMPRESSOR (RE-ALIGNED HIGH CONTRAST GR GAIN REDUCTION METER)
+function openCompModal(index) {
+    const track = tracks[index];
+    document.getElementById("compModalContent").innerHTML = `
+        <div class="modal-header">
+            <h6 class="modal-title text-success fw-bold font-monospace">📉 CH ${index + 1} - PRO DYNAMICS COMPRESSOR</h6>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body d-flex flex-column gap-3">
+            <div class="p-2 bg-black rounded border border-secondary mx-1">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="gr-title-lbl">📉 GAIN REDUCTION</span>
+                    <span class="text-warning font-monospace" style="font-size:11px; font-weight:bold;">ATTENUATION: <span id="gr-num-val-${index}">0.0</span> dB</span>
+                </div>
+                <div class="gr-meter-box"><div class="gr-meter-fill" id="gr-fill-${index}"></div></div>
+                <div class="d-flex justify-content-between text-light font-monospace mt-1" style="font-size:10px; font-weight:bold;"><span>0dB</span><span>-6dB</span><span>-12dB</span><span>-20dB</span><span>-30dB</span></div>
+            </div>
+            <div class="fx-box">
+                <div class="knob-grid">
+                    <div class="knob-container">
+                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'compThreshold', -60, 0, 1, 'comp')"><div class="knob-dial" id="k-th-${index}"></div></div>
+                        <div class="knob-title">Threshold</div><div class="val-label text-light mt-1"><span id="v-th-${index}">${track.compThreshold}</span> dB</div>
+                    </div>
+                    <div class="knob-container">
+                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'compRatio', 1, 20, 0.5, 'comp')"><div class="knob-dial" id="k-rat-${index}"></div></div>
+                        <div class="knob-title">Ratio</div><div class="val-label text-light mt-1"><span id="v-rat-${index}">${track.compRatio}</span>:1</div>
+                    </div>
+                    <div class="knob-container">
+                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'compKnee', 0, 40, 1, 'comp')"><div class="knob-dial" id="k-kne-${index}"></div></div>
+                        <div class="knob-title">Knee</div><div class="val-label text-light mt-1"><span id="v-kne-${index}">${track.compKnee}</span></div>
+                    </div>
+                    <div class="knob-container">
+                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'compAttack', 0.001, 0.5, 0.001, 'comp')"><div class="knob-dial" id="k-atk-${index}"></div></div>
+                        <div class="knob-title">Attack</div><div class="val-label text-light mt-1"><span id="v-atk-${index}">${Math.round(track.compAttack * 1000)}</span> ms</div>
+                    </div>
+                    <div class="knob-container">
+                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'compRelease', 0.01, 1.0, 0.01, 'comp')"><div class="knob-dial" id="k-rel-${index}"></div></div>
+                        <div class="knob-title">Release</div><div class="val-label text-light mt-1"><span id="v-rel-${index}">${Math.round(track.compRelease * 1000)}</span> ms</div>
+                    </div>
+                    <div class="knob-container">
+                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'compGain', -12, 24, 1, 'comp')"><div class="knob-dial" id="k-cgn-${index}"></div></div>
+                        <div class="knob-title">Gain</div><div class="val-label text-light mt-1"><span id="v-cgn-${index}">${track.compGain}</span> dB</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    new bootstrap.Modal(document.getElementById('compPluginModal')).show();
+    setTimeout(() => {
+        updateKnobRotationUI(index, 'compThreshold', track.compThreshold, -60, 0);
+        updateKnobRotationUI(index, 'compRatio', track.compRatio, 1, 20);
+        updateKnobRotationUI(index, 'compKnee', track.compKnee, 0, 40);
+        updateKnobRotationUI(index, 'compAttack', track.compAttack, 0.001, 0.5);
+        updateKnobRotationUI(index, 'compRelease', track.compRelease, 0.01, 1.0);
+        updateKnobRotationUI(index, 'compGain', track.compGain, -12, 24);
+    }, 80);
+}
+
+// 3. MODAL DELAY
+function openDelayModal(index) {
+    const track = tracks[index];
+    document.getElementById("delayModalContent").innerHTML = `
+        <div class="modal-header">
+            <h6 class="modal-title text-primary fw-bold font-monospace">🌿 CH ${index + 1} - TIME DELAY & AUX ROUTING</h6>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body d-flex flex-column gap-3">
+            <div class="fx-box">
+                <span class="val-label text-info fw-bold mb-3">⏱️ DIGITAL FEEDBACK DELAY</span>
+                <div class="knob-grid">
+                    <div class="knob-container">
+                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'delayTime', 0.05, 2.0, 0.05, 'delay')"><div class="knob-dial" id="k-dly-${index}"></div></div>
+                        <div class="knob-title">Time</div><div class="val-label text-light mt-1"><span id="v-dly-${index}">${Math.round(track.delayTime * 1000)}</span> ms</div>
+                    </div>
+                    <div class="knob-container">
+                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'delayFeedback', 0, 0.95, 0.05, 'delay')"><div class="knob-dial" id="k-dfb-${index}"></div></div>
+                        <div class="knob-title">Feedback</div><div class="val-label text-light mt-1"><span id="v-dfb-${index}">${Math.round(track.delayFeedback * 100)}</span>%</div>
+                    </div>
+                    <div class="knob-container">
+                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'delayMix', 0, 1.0, 0.05, 'delay')"><div class="knob-dial" id="k-dmx-${index}"></div></div>
+                        <div class="knob-title">Mix</div><div class="val-label text-light mt-1"><span id="v-dmx-${index}">${Math.round(track.delayMix * 100)}</span>%</div>
+                    </div>
+                </div>
+            </div>
+            <div class="fx-box">
+                <span class="val-label text-primary fw-bold mb-3">🚌 AUX SEND MATRIX</span>
+                <div class="mb-3 px-1">
+                    <select class="form-select bg-dark text-light border-secondary font-monospace" style="font-size:12px;" onchange="liveParamUpdate(${index}, 'routingTarget', this.value)">
+                        <option value="master" ${track.routingTarget === 'master' ? 'selected' : ''}>DIRECT TO MASTER OUT</option>
+                        <option value="bus1" ${track.routingTarget === 'bus1' ? 'selected' : ''}>ROUTE TO BUS GROUP B1</option>
+                    </select>
+                </div>
+                <div class="knob-grid">
+                    <div class="knob-container">
+                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'fxSendLevel', 0, 1.0, 0.01, 'aux')"><div class="knob-dial" id="k-fx-${index}"></div></div>
+                        <div class="knob-title">Reverb Send</div><div class="val-label text-light mt-1"><span id="v-fx-${index}">${Math.round(track.fxSendLevel * 100)}</span>%</div>
+                    </div>
+                    <div class="knob-container">
+                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'panning', -1.0, 1.0, 0.1, 'aux')"><div class="knob-dial" id="k-pan-${index}"></div></div>
+                        <div class="knob-title">Pan Balance</div><div class="val-label text-light mt-1"><span id="v-pan-${index}">${track.panning}</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    new bootstrap.Modal(document.getElementById('delayPluginModal')).show();
+    setTimeout(() => {
+        updateKnobRotationUI(index, 'delayTime', track.delayTime, 0.05, 2.0);
+        updateKnobRotationUI(index, 'delayFeedback', track.delayFeedback, 0, 0.95);
+        updateKnobRotationUI(index, 'delayMix', track.delayMix, 0, 1.0);
+        updateKnobRotationUI(index, 'fxSendLevel', track.fxSendLevel, 0, 1.0);
+        updateKnobRotationUI(index, 'panning', track.panning, -1.0, 1.0);
+    }, 80);
+}
+
+function initKnobDrag(e, index, paramName, minVal, maxVal, step, context) {
+    e.preventDefault();
+    let startY = e.clientY;
+    let startVal = tracks[index][paramName];
+    let range = maxVal - minVal;
+    let pixelsPerUnit = 130 / range; 
+
+    function onMouseMove(moveEvent) {
+        let deltaY = startY - moveEvent.clientY;
+        let newVal = startVal + (deltaY / pixelsPerUnit);
+        newVal = Math.max(minVal, Math.min(maxVal, newVal));
+        newVal = Math.round(newVal / step) * step;
+        
+        liveParamUpdate(index, paramName, newVal);
+        updateKnobRotationUI(index, paramName, newVal, minVal, maxVal);
+        if (context === 'eq') drawEqCurve(index);
+    }
+
+    function onMouseUp() {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+    }
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+}
+
+function updateKnobRotationUI(index, paramName, val, minVal, maxVal) {
+    const labelMap = { 
+        eqLow: 'eql', eqMid: 'eqm', eqHigh: 'eqh', 
+        compThreshold: 'th', compRatio: 'rat', compKnee: 'kne', compAttack: 'atk', compRelease: 'rel', compGain: 'cgn',
+        delayTime: 'dly', delayFeedback: 'dfb', delayMix: 'dmx', fxSendLevel: 'fx', panning: 'pan' 
+    };
+    const knobDial = document.getElementById(`k-${labelMap[paramName]}-${index}`);
+    if (knobDial) {
+        let percent = (val - minVal) / (maxVal - minVal);
+        let degrees = (percent * 270) - 135;
+        knobDial.style.transform = `rotate(${degrees}deg)`;
+    }
+}
+
+function toggleBypass(index) {
+    tracks[index].isBypassed = !tracks[index].isBypassed;
+    const strip = document.getElementById(`strip-${index}`);
+    const btn = strip.querySelector("button[onclick='toggleBypass("+index+")']");
+    if(tracks[index].isBypassed) { 
+        strip.classList.add('bypassed-active'); 
+        btn.className = "btn btn-sm btn-warning text-dark py-0 px-2 fw-bold"; 
+    } else { 
+        strip.classList.remove('bypassed-active'); 
+        btn.className = "btn btn-sm btn-outline-secondary py-0 px-2 fw-bold"; 
+    }
+
+    const active = activeSources.find(s => s.id === tracks[index].id);
+    if (active && audioCtx) {
+        const time = audioCtx.currentTime;
+        if (tracks[index].isBypassed) {
+            active.eqLowNode.gain.setValueAtTime(0, time);
+            active.eqMidNode.gain.setValueAtTime(0, time);
+            active.eqHighNode.gain.setValueAtTime(0, time);
+            active.compNode.threshold.setValueAtTime(0, time);
+            active.compNode.ratio.setValueAtTime(1, time);
+            active.compGainNode.gain.setValueAtTime(1, time);
+            active.delayWetGain.gain.setValueAtTime(0, time);
+            active.fxSendGainNode.gain.setValueAtTime(0, time);
+        } else {
+            active.eqLowNode.gain.setValueAtTime(tracks[index].eqLow, time);
+            active.eqMidNode.gain.setValueAtTime(tracks[index].eqMid, time);
+            active.eqHighNode.gain.setValueAtTime(tracks[index].eqHigh, time);
+            active.compNode.threshold.setValueAtTime(tracks[index].compThreshold, time);
+            active.compNode.ratio.setValueAtTime(tracks[index].compRatio, time);
+            active.compGainNode.gain.setValueAtTime(Math.pow(10, tracks[index].compGain / 20), time);
+            active.delayWetGain.gain.setValueAtTime(tracks[index].delayMix, time);
+            active.fxSendGainNode.gain.setValueAtTime(tracks[index].fxSendLevel, time);
+        }
+    }
+}
+
+function toggleMute(index) {
+    tracks[index].isMuted = !tracks[index].isMuted;
+    const strip = document.getElementById(`strip-${index}`);
+    const btn = strip.querySelector("button[onclick='toggleMute("+index+")']");
+    if(tracks[index].isMuted) { 
+        strip.classList.add('muted-active'); 
+        btn.className = "btn btn-sm btn-danger py-0 px-2 fw-bold"; 
+    } else { 
+        strip.classList.remove('muted-active'); 
+        btn.className = "btn btn-sm btn-outline-warning py-0 px-2 fw-bold"; 
+    }
+    const active = activeSources.find(s => s.id === tracks[index].id);
+    if (active && audioCtx) {
+        active.gainNode.gain.setValueAtTime(tracks[index].isMuted ? 0 : tracks[index].volume, audioCtx.currentTime);
+    }
+}
+
+function togglePlayState() {
+    if (isExporting) return;
+    if (isPlaying) {
+        isPlaying = false;
+        playTimeOffset += (audioCtx.currentTime - startTime);
+        stopActiveSourcesOnly();
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        document.getElementById("btnPlay").innerHTML = "▶ Play";
+        document.getElementById("btnPlay").className = "btn btn-success btn-sm px-3 fw-bold";
+    } else {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        isPlaying = true;
+        document.getElementById("btnPlay").innerHTML = "⏸ Pause";
+        document.getElementById("btnPlay").className = "btn btn-warning btn-sm px-3 fw-bold";
+        spawnAudioNodeEngine();
+    }
+}
+
+function stopSession() {
+    isPlaying = false;
+    playTimeOffset = 0;
+    stopActiveSourcesOnly();
+    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    updateClockUI(); updatePlayheadsUI();
     const playBtn = document.getElementById("btnPlay");
-    playBtn.innerHTML = "⏳ Decoding System...";
-    playBtn.className = "btn btn-warning px-4 fw-bold";
+    if (playBtn) { playBtn.innerHTML = "▶ Play"; playBtn.className = "btn btn-success btn-sm px-3 fw-bold"; }
+    
+    if (isExporting && mediaRecorder) {
+        mediaRecorder.stop();
+    }
+}
+
+function stopActiveSourcesOnly() {
+    activeSources.forEach(s => { try { s.source.stop(); } catch(e){} });
+    activeSources = [];
+}
+
+function spawnAudioNodeEngine() {
+    if (tracks.length === 0) return;
+    startTime = audioCtx.currentTime;
 
     masterGainNode = audioCtx.createGain();
     masterGainNode.gain.setValueAtTime(currentMasterVolume, audioCtx.currentTime);
 
-    // FIX: Dipastikan instansiasi object Analyzer dipanggil langsung dari context yang valid
-    masterAnalyzerNode = audioCtx.createAnalyzer();
+    masterAnalyzerNode = audioCtx.createAnalyser();
     masterAnalyzerNode.fftSize = 256;
-    
     masterGainNode.connect(masterAnalyzerNode);
     masterAnalyzerNode.connect(audioCtx.destination);
 
@@ -279,16 +680,36 @@ async function playAll() {
     globalReverbNode.buffer = createSyntheticImpulse(2.0, 1.5);
     globalReverbGainNode = audioCtx.createGain();
     globalReverbGainNode.gain.setValueAtTime(currentGlobalReverbMix, audioCtx.currentTime);
-    
     globalReverbNode.connect(globalReverbGainNode);
     globalReverbGainNode.connect(masterGainNode);
 
-    let loadedCount = 0;
+    // KONEKSI EXPORT JALUR MASTER RECORDING
+    if (isExporting) {
+        const dest = audioCtx.createMediaStreamDestination();
+        masterGainNode.connect(dest);
+        recordedChunks = [];
+        mediaRecorder = new MediaRecorder(dest.stream);
+        mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
+        mediaRecorder.onstop = () => {
+            const blob = new Blob(recordedChunks, { type: 'audio/wav' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = 'Mixdown_Studio_Master.wav';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            
+            isExporting = false;
+            document.getElementById("exportStatus").innerText = "Export Selesai!";
+            stopSession();
+        };
+        mediaRecorder.start();
+    }
 
     tracks.forEach((track) => {
+        if (playTimeOffset >= track.duration) return;
         const bufferCopy = track.audioData.slice(0);
-        
         audioCtx.decodeAudioData(bufferCopy).then((audioBuffer) => {
+            if (!isPlaying) return;
+
             const source = audioCtx.createBufferSource();
             source.buffer = audioBuffer;
 
@@ -297,92 +718,151 @@ async function playAll() {
             const eqHighNode = audioCtx.createBiquadFilter(); eqHighNode.type = "highshelf"; eqHighNode.frequency.value = 10000;
 
             const compNode = audioCtx.createDynamicsCompressor();
-            compNode.ratio.setValueAtTime(4.0, audioCtx.currentTime);
+            const compGainNode = audioCtx.createGain();
+
+            const delayNode = audioCtx.createDelay(2.0);
+            const delayFeedbackGain = audioCtx.createGain();
+            const delayWetGain = audioCtx.createGain();
+
+            const gainNode = audioCtx.createGain();
+            const pannerNode = audioCtx.createStereoPanner();
+            const fxSendGainNode = audioCtx.createGain();
 
             if (track.isBypassed) {
                 eqLowNode.gain.setValueAtTime(0, audioCtx.currentTime);
                 eqMidNode.gain.setValueAtTime(0, audioCtx.currentTime);
                 eqHighNode.gain.setValueAtTime(0, audioCtx.currentTime);
                 compNode.threshold.setValueAtTime(0, audioCtx.currentTime);
+                compNode.ratio.setValueAtTime(1, audioCtx.currentTime);
+                compGainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+                delayWetGain.gain.setValueAtTime(0, audioCtx.currentTime);
+                fxSendGainNode.gain.setValueAtTime(0, audioCtx.currentTime);
             } else {
                 eqLowNode.gain.setValueAtTime(track.eqLow, audioCtx.currentTime);
                 eqMidNode.gain.setValueAtTime(track.eqMid, audioCtx.currentTime);
                 eqHighNode.gain.setValueAtTime(track.eqHigh, audioCtx.currentTime);
                 compNode.threshold.setValueAtTime(track.compThreshold, audioCtx.currentTime);
+                compNode.ratio.setValueAtTime(track.compRatio, audioCtx.currentTime);
+                compNode.attack.setValueAtTime(track.compAttack, audioCtx.currentTime);
+                compNode.release.setValueAtTime(track.compRelease, audioCtx.currentTime);
+                compNode.knee.setValueAtTime(track.compKnee, audioCtx.currentTime);
+                compGainNode.gain.setValueAtTime(Math.pow(10, track.compGain / 20), audioCtx.currentTime);
+                delayNode.delayTime.setValueAtTime(track.delayTime, audioCtx.currentTime);
+                delayFeedbackGain.gain.setValueAtTime(track.delayFeedback, audioCtx.currentTime);
+                delayWetGain.gain.setValueAtTime(track.delayMix, audioCtx.currentTime);
+                fxSendGainNode.gain.setValueAtTime(track.fxSendLevel, audioCtx.currentTime);
             }
 
-            const gainNode = audioCtx.createGain();
-            const targetVolume = track.isMuted ? 0 : track.volume;
-            gainNode.gain.setValueAtTime(targetVolume, audioCtx.currentTime);
-
-            const pannerNode = audioCtx.createStereoPanner();
+            gainNode.gain.setValueAtTime(track.isMuted ? 0 : track.volume, audioCtx.currentTime);
             pannerNode.pan.setValueAtTime(track.panning, audioCtx.currentTime);
 
-            const fxSendGainNode = audioCtx.createGain();
-            const targetFxSend = track.isBypassed ? 0 : track.fxSendLevel;
-            fxSendGainNode.gain.setValueAtTime(targetFxSend, audioCtx.currentTime);
-
-            source.connect(eqLowNode);
-            eqLowNode.connect(eqMidNode);
-            eqMidNode.connect(eqHighNode);
-            eqHighNode.connect(compNode);
+            source.connect(eqLowNode).connect(eqMidNode).connect(eqHighNode).connect(compNode).connect(compGainNode);
+            compGainNode.connect(gainNode);
             
-            compNode.connect(gainNode);
+            compGainNode.connect(delayNode).connect(delayFeedbackGain).connect(delayNode);
+            delayNode.connect(delayWetGain).connect(gainNode);
+
             gainNode.connect(pannerNode);
+            if (track.routingTarget === "bus1") pannerNode.connect(busGainNode);
+            else pannerNode.connect(masterGainNode);
 
-            if (track.routingTarget === "bus1") {
-                pannerNode.connect(busGainNode);
-            } else {
-                pannerNode.connect(masterGainNode);
-            }
-
-            compNode.connect(fxSendGainNode);
-            fxSendGainNode.connect(globalReverbNode);
-
-            source.start(0);
+            compGainNode.connect(fxSendGainNode).connect(globalReverbNode);
+            source.start(0, playTimeOffset);
 
             activeSources.push({
-                id: track.id,
-                source, eqLowNode, eqMidNode, eqHighNode, compNode, gainNode, pannerNode, fxSendGainNode
+                id: track.id, source, eqLowNode, eqMidNode, eqHighNode, compNode, compGainNode, delayNode, delayFeedbackGain, delayWetGain, gainNode, pannerNode, fxSendGainNode
             });
-
-            loadedCount++;
-            if (loadedCount === tracks.length) {
-                playBtn.innerHTML = "⏸ Playing Mix Session";
-                playBtn.className = "btn btn-info px-4 fw-bold";
-            }
-        }).catch(err => {
-            console.error("Gagal melakukan decoding berkas audio: ", err);
-            if (loadedCount === 0 && activeSources.length === 0) {
-                resetPlayButtonState();
-            }
         });
     });
 
-    startSpectrumVisualization();
+    startGlobalRenderMonitoring();
 }
 
-function stopAll() {
-    if (animationFrameId) cancelAnimationFrame(animationFrameId);
-    activeSources.forEach(s => { try { s.source.stop(); } catch(e){} });
-    activeSources = [];
-    resetPlayButtonState();
+// DRIVER UTAMA EXPORT MIXDOWN REAL-TIME
+function triggerMixdownBounce() {
+    if (tracks.length === 0) return alert("Tidak ada track audio untuk diexport!");
+    stopSession();
+    
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    isExporting = true;
+    isPlaying = true;
+    playTimeOffset = 0;
+    
+    document.getElementById("exportStatus").innerText = "🔴 Exporting Mixdown...";
+    spawnAudioNodeEngine();
 }
 
-function resetPlayButtonState() {
-    const playBtn = document.getElementById("btnPlay");
-    if (playBtn) { playBtn.innerHTML = "▶ Play Session"; playBtn.className = "btn btn-success px-4 fw-bold"; }
+function startGlobalRenderMonitoring() {
+    const canvas = document.getElementById("spectrumMeter");
+    const ctx = canvas ? canvas.getContext("2d") : null;
+    const bufferLength = masterAnalyzerNode.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    function tick() {
+        if (!isPlaying) return;
+        animationFrameId = requestAnimationFrame(tick);
+
+        const currentElapsed = playTimeOffset + (audioCtx.currentTime - startTime);
+        if (currentElapsed >= totalDuration) { stopSession(); return; }
+        
+        document.getElementById("txtTimelineClock").innerText = `${formatTime(currentElapsed)} / ${formatTime(totalDuration)}`;
+        
+        tracks.forEach((track, index) => {
+            const playhead = document.getElementById(`playhead-${index}`);
+            if (playhead) { playhead.style.left = `${(currentElapsed / totalDuration) * 100}%`; }
+            
+            // FIX REAL-TIME GAIN REDUCTION METER CONTRAST VALUE
+            const active = activeSources.find(s => s.id === track.id);
+            const grFill = document.getElementById(`gr-fill-${index}`);
+            const grNum = document.getElementById(`gr-num-val-${index}`);
+            if (active && grFill && !track.isBypassed) {
+                const attenuationValue = Math.abs(active.compNode.reduction);
+                const pct = Math.min(100, (attenuationValue / 30) * 100);
+                grFill.style.width = `${pct}%`;
+                if (grNum) grNum.innerText = attenuationValue.toFixed(1);
+            } else {
+                if (grFill) grFill.style.width = "0%";
+                if (grNum) grNum.innerText = "0.0";
+            }
+        });
+
+        // DRAW GRAPHIC SPECTRUM WITH CALIBRATED FREQUENCY TICKS
+        if (ctx) {
+            masterAnalyzerNode.getByteFrequencyData(dataArray);
+            ctx.fillStyle = "#020617"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid lines
+            ctx.strokeStyle = "#1e293b"; ctx.lineWidth = 1;
+            const ticks = [
+                { hz: '20Hz', pct: 0.05 }, { hz: '100Hz', pct: 0.2 },
+                { hz: '1kHz', pct: 0.5 }, { hz: '5kHz', pct: 0.75 }, { hz: '20kHz', pct: 0.95 }
+            ];
+            ticks.forEach(t => {
+                let xPos = canvas.width * t.pct;
+                ctx.beginPath(); ctx.moveTo(xPos, 0); ctx.lineTo(xPos, canvas.height - 20); ctx.stroke();
+                ctx.fillStyle = "#94a3b8"; ctx.font = "10px monospace";
+                ctx.fillText(t.hz, xPos - 12, canvas.height - 5);
+            });
+
+            // Draw Frequency spectrum bars
+            const barWidth = (canvas.width / bufferLength) * 1.5; let barHeight; let x = 0;
+            for (let i = 0; i < bufferLength; i++) {
+                barHeight = dataArray[i] / 1.3;
+                ctx.fillStyle = `rgb(${barHeight+50}, 180, 252)`;
+                ctx.fillRect(x, canvas.height - 22 - barHeight, barWidth - 1, barHeight);
+                x += barWidth;
+            }
+        }
+    }
+    tick();
 }
 
 function createSyntheticImpulse(duration, decay) {
-    const sampleRate = audioCtx ? audioCtx.sampleRate : 44100;
-    const length = sampleRate * duration;
+    const sampleRate = audioCtx ? audioCtx.sampleRate : 44100; const length = sampleRate * duration;
     const impulse = (audioCtx || new AudioContext()).createBuffer(2, length, sampleRate);
     for (let channel = 0; channel < 2; channel++) {
-        const channelData = impulse.getChannelData(channel);
-        for (let i = 0; i < length; i++) {
-            channelData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
-        }
+        const data = impulse.getChannelData(channel);
+        for (let i = 0; i < length; i++) { data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay); }
     }
     return impulse;
 }
@@ -392,209 +872,87 @@ function liveParamUpdate(index, paramName, value) {
     tracks[index][paramName] = value;
     const active = activeSources.find(s => s.id === tracks[index].id);
 
-    switch(paramName) {
-        case 'volume': 
-            document.getElementById(`v-vol-${index}`).innerText = Math.round(value * 100);
-            if (active && !tracks[index].isMuted) active.gainNode.gain.setValueAtTime(value, audioCtx.currentTime);
-            break;
-        case 'panning': 
-            document.getElementById(`v-pan-${index}`).innerText = value;
-            if (active) active.pannerNode.pan.setValueAtTime(value, audioCtx.currentTime);
-            break;
-        case 'fxSendLevel': 
-            document.getElementById(`v-fx-${index}`).innerText = Math.round(value * 100);
-            if (active && !tracks[index].isBypassed) active.fxSendGainNode.gain.setValueAtTime(value, audioCtx.currentTime);
-            break;
-        case 'eqLow': 
-            document.getElementById(`v-eql-${index}`).innerText = value;
-            if (active && !tracks[index].isBypassed) active.eqLowNode.gain.setValueAtTime(value, audioCtx.currentTime);
-            break;
-        case 'eqMid': 
-            document.getElementById(`v-eqm-${index}`).innerText = value;
-            if (active && !tracks[index].isBypassed) active.eqMidNode.gain.setValueAtTime(value, audioCtx.currentTime);
-            break;
-        case 'eqHigh': 
-            document.getElementById(`v-eqh-${index}`).innerText = value;
-            if (active && !tracks[index].isBypassed) active.eqHighNode.gain.setValueAtTime(value, audioCtx.currentTime);
-            break;
-        case 'compThreshold': 
-            document.getElementById(`v-comp-${index}`).innerText = value;
-            if (active && !tracks[index].isBypassed) active.compNode.threshold.setValueAtTime(value, audioCtx.currentTime);
-            break;
-        case 'routingTarget':
-            if (active) {
-                active.pannerNode.disconnect();
-                if (value === "bus1") active.pannerNode.connect(busGainNode);
-                else active.pannerNode.connect(masterGainNode);
-            }
-            break;
-    }
-}
-
-function toggleMute(index) {
-    tracks[index].isMuted = !tracks[index].isMuted;
-    const strip = document.getElementById(`strip-${index}`);
-    if(tracks[index].isMuted) strip.classList.add('muted'); else strip.classList.remove('muted');
-
-    const active = activeSources.find(s => s.id === tracks[index].id);
-    if (active && audioCtx) {
-        const finalGain = tracks[index].isMuted ? 0 : tracks[index].volume;
-        active.gainNode.gain.setValueAtTime(finalGain, audioCtx.currentTime);
-    }
-}
-
-function toggleBypass(index) {
-    tracks[index].isBypassed = !tracks[index].isBypassed;
-    const strip = document.getElementById(`strip-${index}`);
-    const btn = strip.querySelector("button[onclick='toggleBypass("+index+")']");
-    
-    if(tracks[index].isBypassed) {
-        strip.classList.add('bypassed');
-        btn.className = "btn btn-sm btn-warning text-dark py-0 px-2";
-    } else {
-        strip.classList.remove('bypassed');
-        btn.className = "btn btn-sm btn-outline-secondary py-0 px-2";
-    }
-
-    const active = activeSources.find(s => s.id === tracks[index].id);
-    if (active && audioCtx) {
-        if (tracks[index].isBypassed) {
-            active.eqLowNode.gain.setValueAtTime(0, audioCtx.currentTime);
-            active.eqMidNode.gain.setValueAtTime(0, audioCtx.currentTime);
-            active.eqHighNode.gain.setValueAtTime(0, audioCtx.currentTime);
-            active.compNode.threshold.setValueAtTime(0, audioCtx.currentTime);
-            active.fxSendGainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-        } else {
-            active.eqLowNode.gain.setValueAtTime(tracks[index].eqLow, audioCtx.currentTime);
-            active.eqMidNode.gain.setValueAtTime(tracks[index].eqMid, audioCtx.currentTime);
-            active.eqHighNode.gain.setValueAtTime(tracks[index].eqHigh, audioCtx.currentTime);
-            active.compNode.threshold.setValueAtTime(tracks[index].compThreshold, audioCtx.currentTime);
-            active.fxSendGainNode.gain.setValueAtTime(tracks[index].fxSendLevel, audioCtx.currentTime);
-        }
-    }
-}
-
-function updateMasterVolume(val) {
-    currentMasterVolume = parseFloat(val);
-    document.getElementById("txtMasterVol").innerText = Math.round(currentMasterVolume * 100);
-    if (masterGainNode) masterGainNode.gain.setValueAtTime(currentMasterVolume, audioCtx.currentTime);
-}
-
-function updateBusVolume(val) {
-    currentBusVolume = parseFloat(val);
-    document.getElementById("txtBusVol").innerText = Math.round(currentBusVolume * 100);
-    if (busGainNode) busGainNode.gain.setValueAtTime(currentBusVolume, audioCtx.currentTime);
-}
-
-function updateGlobalReverb(val) {
-    currentGlobalReverbMix = parseFloat(val);
-    document.getElementById("txtGlobalRev").innerText = Math.round(currentGlobalReverbMix * 100);
-    if (globalReverbGainNode) globalReverbGainNode.gain.setValueAtTime(currentGlobalReverbMix, audioCtx.currentTime);
-}
-
-function drawAllStaticWaveforms() {
-    const OfflineContextClass = window.OfflineAudioContext || window.webkitOfflineAudioContext || window.AudioContext;
-    const offlineCtx = new OfflineContextClass(1, 44100, 44100);
-    
-    tracks.forEach((track, index) => {
-        const canvas = document.getElementById(`waveCanvas-${index}`);
-        if (!canvas) return;
-        const ctx = canvas.getContext("2d");
-        const bufferCopy = track.audioData.slice(0);
-
-        offlineCtx.decodeAudioData(bufferCopy).then((audioBuffer) => {
-            const rawData = audioBuffer.getChannelData(0); 
-            const samples = 120; 
-            const blockSize = Math.floor(rawData.length / samples);
-            let peaks = [];
-
-            for (let i = 0; i < samples; i++) {
-                let blockStart = blockSize * i;
-                let sum = 0;
-                for (let j = 0; j < blockSize; j++) {
-                    sum += Math.abs(rawData[blockStart + j]);
-                }
-                peaks.push(sum / blockSize);
-            }
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "#3b82f6";
-            const w = canvas.width / peaks.length;
-            
-            peaks.forEach((peak, pIdx) => {
-                const h = peak * canvas.height * 2.5; 
-                const x = pIdx * w;
-                const y = (canvas.height - h) / 2;
-                ctx.fillRect(x, y, w - 1, h);
-            });
-        }).catch(err => console.error("Waveform error: ", err));
-    });
-}
-
-function startSpectrumVisualization() {
-    const canvas = document.getElementById("spectrumMeter");
-    const ctx = canvas.getContext("2d");
-    const bufferLength = masterAnalyzerNode.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-
-    function draw() {
-        animationFrameId = requestAnimationFrame(draw);
-        masterAnalyzerNode.getByteFrequencyData(dataArray);
-
-        ctx.fillStyle = "#020617";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        const barWidth = (canvas.width / bufferLength) * 1.5;
-        let barHeight;
-        let x = 0;
-
-        for (let i = 0; i < bufferLength; i++) {
-            barHeight = dataArray[i] / 1.8;
-            const r = barHeight + (25 * (i / bufferLength));
-            const g = 250 * (1 - (i / bufferLength));
-            const b = 150;
-
-            ctx.fillStyle = `rgb(${r},${g},${b})`;
-            ctx.fillRect(x, canvas.height - barHeight, barWidth - 1, barHeight);
-            x += barWidth;
-        }
-    }
-    draw();
-}
-
-async function askAiAssistant() {
-    const apiKey = document.getElementById("apiKey").value;
-    const aiOutput = document.getElementById("aiOutput");
-    if (!apiKey) { aiOutput.innerHTML = `<span class="text-danger">⚠️ Input API Key DeepSeek pada kolom di atas!</span>`; return; }
-
-    aiOutput.innerHTML = `<div class="spinner-border spinner-border-sm text-info" role="status"></div> AI menganalisis matrix fader dan kurva respons frekuensi...`;
-
-    const snapshot = {
-        master_volume: currentMasterVolume,
-        bus_b1_volume: currentBusVolume,
-        global_reverb_return: currentGlobalReverbMix,
-        channels: tracks.map((t, i) => ({
-            ch: i + 1, file: t.name, volume: t.volume, pan: t.panning,
-            is_muted: t.isMuted, is_bypassed: t.isBypassed, routed_to: t.routingTarget,
-            fx_send_level: t.fxSendLevel, eq: { low_80Hz: t.eqLow, mid_1kHz: t.eqMid, high_10kHz: t.eqHigh },
-            compressor_threshold_dB: t.compThreshold
-        }))
+    const labelMap = { 
+        volume: 'vol', panning: 'pan', fxSendLevel: 'fx', eqLow: 'eql', eqMid: 'eqm', eqHigh: 'eqh', 
+        compThreshold: 'th', compRatio: 'rat', compKnee: 'kne', compAttack: 'atk', compRelease: 'rel', compGain: 'cgn',
+        delayTime: 'dly', delayFeedback: 'dfb', delayMix: 'dmx'
     };
+    
+    const targetEl = document.getElementById(`v-${labelMap[paramName]}-${index}`);
+    if (targetEl) {
+        if (paramName==='volume'||paramName==='fxSendLevel'||paramName==='delayFeedback'||paramName==='delayMix') targetEl.innerText = Math.round(value*100);
+        else if (paramName==='compAttack'||paramName==='compRelease'||paramName==='delayTime') targetEl.innerText = Math.round(value*1000);
+        else targetEl.innerText = value;
+    }
 
-    const prompt = `Anda adalah Sound Engineer Senior. Berikan analisis taktis mengenai session mixing berikut: ${JSON.stringify(snapshot)}. Berikan rekomendasi angka fader, pembagian EQ, penanganan gain staging bus, status bypass, serta manajemen reverb return. Sampaikan dengan ringkas, padat, langsung ke angka tujuan, menggunakan Bahasa Indonesia profesional.`;
+    if (!active) return;
+    switch(paramName) {
+        case 'volume': if(!tracks[index].isMuted) active.gainNode.gain.setValueAtTime(value, audioCtx.currentTime); break;
+        case 'panning': active.pannerNode.pan.setValueAtTime(value, audioCtx.currentTime); break;
+        case 'fxSendLevel': if(!tracks[index].isBypassed) active.fxSendGainNode.gain.setValueAtTime(value, audioCtx.currentTime); break;
+        case 'eqLow': if(!tracks[index].isBypassed) active.eqLowNode.gain.setValueAtTime(value, audioCtx.currentTime); break;
+        case 'eqMid': if(!tracks[index].isBypassed) active.eqMidNode.gain.setValueAtTime(value, audioCtx.currentTime); break;
+        case 'eqHigh': if(!tracks[index].isBypassed) active.eqHighNode.gain.setValueAtTime(value, audioCtx.currentTime); break;
+        case 'compThreshold': if(!tracks[index].isBypassed) active.compNode.threshold.setValueAtTime(value, audioCtx.currentTime); break;
+        case 'compRatio': if(!tracks[index].isBypassed) active.compNode.ratio.setValueAtTime(value, audioCtx.currentTime); break;
+        case 'compKnee': if(!tracks[index].isBypassed) active.compNode.knee.setValueAtTime(value, audioCtx.currentTime); break;
+        case 'compAttack': if(!tracks[index].isBypassed) active.compNode.attack.setValueAtTime(value, audioCtx.currentTime); break;
+        case 'compRelease': if(!tracks[index].isBypassed) active.compNode.release.setValueAtTime(value, audioCtx.currentTime); break;
+        case 'compGain': if(!tracks[index].isBypassed) active.compGainNode.gain.setValueAtTime(Math.pow(10, value / 20), audioCtx.currentTime); break;
+        case 'delayTime': if(!tracks[index].isBypassed) active.delayNode.delayTime.setValueAtTime(value, audioCtx.currentTime); break;
+        case 'delayFeedback': if(!tracks[index].isBypassed) active.delayFeedbackGain.gain.setValueAtTime(value, audioCtx.currentTime); break;
+        case 'delayMix': if(!tracks[index].isBypassed) active.delayWetGain.gain.setValueAtTime(value, audioCtx.currentTime); break;
+        case 'routingTarget':
+            active.pannerNode.disconnect();
+            if (value === "bus1") active.pannerNode.connect(busGainNode);
+            else active.pannerNode.connect(masterGainNode);
+            break;
+    }
+}
+
+function updateMasterVolume(val) { currentMasterVolume = parseFloat(val); document.getElementById("txtMasterVol").innerText = Math.round(currentMasterVolume*100); if(masterGainNode) masterGainNode.gain.setValueAtTime(currentMasterVolume, audioCtx.currentTime); }
+function updateBusVolume(val) { currentBusVolume = parseFloat(val); document.getElementById("txtBusVol").innerText = Math.round(currentBusVolume*100); if(busGainNode) busGainNode.gain.setValueAtTime(currentBusVolume, audioCtx.currentTime); }
+function updateGlobalReverb(val) { currentGlobalReverbMix = parseFloat(val); document.getElementById("txtGlobalRev").innerText = Math.round(currentGlobalReverbMix*100); if(globalReverbGainNode) globalReverbGainNode.gain.setValueAtTime(currentGlobalReverbMix, audioCtx.currentTime); }
+
+// INTELLIGENT AI SYSTEM CHAT DRIVER INTERACTION
+async function sendPromptToAI() {
+    const apiKey = document.getElementById("apiKey").value.trim();
+    const inputEl = document.getElementById("aiInput");
+    const prompt = inputEl.value.trim();
+    if (!prompt) return;
+
+    const chatBox = document.getElementById("aiOutput");
+    chatBox.innerHTML += `<br><span class='text-warning'>[User]: ${prompt}</span>`;
+    inputEl.value = "";
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    if (!apiKey) {
+        chatBox.innerHTML += `<br><span class='text-danger'>[System Error]: Harap isi DeepSeek API Key di kanan atas!</span>`;
+        return;
+    }
 
     try {
         const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-            body: JSON.stringify({ model: "deepseek-chat", messages: [{ role: "user", content: prompt }], temperature: 0.4 })
+            body: JSON.stringify({
+                model: "deepseek-chat",
+                messages: [
+                    { role: "system", content: "Anda adalah robot asisten mixing audio DAW profesional. Jawab secara ringkas dan solutif." },
+                    { role: "user", content: prompt }
+                ]
+            })
         });
-        if (response.status === 402) { aiOutput.innerHTML = `<span class="text-danger">❌ Saldo API Key Habis (Error 402).</span>`; return; }
         const data = await response.json();
-        if (data.choices && data.choices[0]) aiOutput.innerHTML = data.choices[0].message.content.replace(/\n/g, "<br>");
-    } catch (err) { aiOutput.innerHTML = `<span class="text-danger">🚨 Error: ${err.message}</span>`; }
+        const reply = data.choices[0].message.content;
+        chatBox.innerHTML += `<br><span class='text-info'>[AI Assistant]: ${reply}</span>`;
+    } catch (err) {
+        chatBox.innerHTML += `<br><span class='text-danger'>[System Error]: Gagal menghubungi server AI.</span>`;
+    }
+    chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+window.addEventListener("resize", drawAllWaveforms);
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("txtMasterVol").innerText = Math.round(currentMasterVolume * 100);
     document.getElementById("txtBusVol").innerText = Math.round(currentBusVolume * 100);
