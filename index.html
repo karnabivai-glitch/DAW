@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Multitrack DAW - Pro Routing Suite</title>
+    <title>Enterprise Multitrack DAW - Ultimate Mixer Suite</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #0b0f19; color: #e2e8f0; font-family: 'Segoe UI', system-ui, sans-serif; }
-        .daw-container { background: #151f32; border-radius: 12px; padding: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); border: 1px solid #24334d; }
-        .track-row { background: #0f172a; margin-bottom: 12px; padding: 18px; border-radius: 8px; border: 1px solid #1e293b; border-left: 6px solid #3b82f6; }
-        .track-row.muted { border-left-color: #64748b; opacity: 0.5; }
-        .master-panel { background: #1e1b4b; border-radius: 10px; padding: 20px; border: 1px solid #4338ca; }
-        .fx-panel { background: #1e293b; padding: 12px; border-radius: 6px; margin-top: 10px; border: 1px solid #334155; }
-        .ai-panel { background: #020617; border-radius: 8px; padding: 20px; border: 1px solid #1e3a8a; height: 100%; }
-        .fader-label { font-size: 11px; font-family: monospace; color: #94a3b8; display: block; }
-        .btn-mute { font-size: 11px; font-weight: bold; }
-        #aiOutput { font-size: 14px; line-height: 1.6; max-height: 500px; overflow-y: auto; color: #cbd5e1; font-family: monospace; }
+        body { background-color: #090d16; color: #f1f5f9; font-family: 'Segoe UI', system-ui, sans-serif; }
+        .daw-wrapper { background: #111c30; border-radius: 14px; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.7); border: 1px solid #1e293b; }
+        .track-strip { background: #070a12; margin-bottom: 14px; padding: 16px; border-radius: 8px; border: 1px solid #1e293b; border-left: 6px solid #3b82f6; }
+        .track-strip.muted { border-left-color: #475569; opacity: 0.4; }
+        .track-strip.bypassed { border-left-color: #eab308; }
+        .master-strip { background: #1e1b4b; border-radius: 10px; padding: 20px; border: 1px solid #4338ca; }
+        .fx-rack { background: #151f32; padding: 14px; border-radius: 6px; margin-top: 12px; border: 1px solid #22314d; }
+        .ai-console { background: #020617; border-radius: 8px; padding: 20px; border: 1px solid #1e3a8a; height: 100%; }
+        .val-label { font-size: 11px; font-family: monospace; color: #38bdf8; }
+        .wave-canvas { background: #1e293b; border-radius: 4px; width: 100%; height: 40px; display: block; margin-top: 6px; }
+        .spectrum-canvas { background: #020617; border: 1px solid #334155; width: 100%; height: 120px; border-radius: 6px; }
+        #aiOutput { font-size: 13px; line-height: 1.6; max-height: 520px; overflow-y: auto; color: #cbd5e1; font-family: monospace; }
         .negative-val { color: #f87171; font-weight: bold; }
     </style>
 </head>
@@ -24,7 +26,7 @@
 <div class="container-fluid py-4">
     <div class="row mb-4 align-items-center">
         <div class="col-md-7">
-            <h2 class="fw-bold m-0 text-light">🎛️ Enterprise DAW Pro <small class="text-muted fs-6 fw-normal">v3.0 (Advanced Routing Engine)</small></h2>
+            <h2 class="fw-bold m-0 text-light">🎛️ Multitrack DAW Pro <small class="text-muted fs-6 fw-normal">v4.0 (Ultimate Processing Engine)</small></h2>
         </div>
         <div class="col-md-5">
             <div class="input-group input-group-sm">
@@ -34,7 +36,7 @@
         </div>
     </div>
 
-    <div class="daw-container">
+    <div class="daw-wrapper">
         <div class="d-flex flex-wrap gap-2 align-items-center mb-4 p-3 bg-dark rounded-3 border border-secondary">
             <button class="btn btn-success px-4 fw-bold" id="btnPlay" onclick="playAll()">▶ Play Session</button>
             <button class="btn btn-danger px-4 fw-bold" onclick="stopAll()">⏹ Stop</button>
@@ -49,30 +51,38 @@
             <div class="col-lg-9">
                 <div class="row g-3">
                     <div class="col-md-8">
-                        <h5 class="mb-3 text-secondary font-monospace">CHANNELS</h5>
+                        <h5 class="mb-3 text-secondary font-monospace">CHANNELS CONSOLE</h5>
                         <div id="tracksContainer">
-                            <p class="text-muted text-center my-5">Belum ada Track Studio. Silakan import berkas audio.</p>
+                            <p class="text-muted text-center my-5">Belum ada track. Silakan import berkas audio.</p>
                         </div>
                     </div>
 
                     <div class="col-md-4">
-                        <h5 class="mb-3 text-secondary font-monospace">BUS & MASTER</h5>
+                        <h5 class="mb-3 text-secondary font-monospace">MASTER ANALYZER</h5>
                         
-                        <div class="master-panel mb-3 bg-dark border-secondary">
-                            <h6 class="text-warning fw-bold font-monospace">🚌 BUS GROUP (B1)</h6>
-                            <span class="fader-label mb-1">BUS GAIN: <span id="txtBusVol">100</span>%</span>
-                            <input type="range" class="form-range" id="busVolumeFader" min="0" max="1.5" step="0.02" value="1.0" oninput="updateBusVolume(this.value)">
+                        <div class="master-strip mb-3 bg-dark border-secondary">
+                            <h6 class="text-info fw-bold font-monospace mb-2">📊 REALTIME SPECTRUM METER</h6>
+                            <canvas id="spectrumMeter" class="spectrum-canvas"></canvas>
+                            <div class="d-flex justify-content-between text-muted font-monospace" style="font-size: 9px;">
+                                <span>20Hz</span><span>1kHz</span><span>5kHz</span><span>20kHz</span>
+                            </div>
                         </div>
 
-                        <div class="master-panel">
-                            <h5 class="text-danger fw-bold font-monospace mb-3">👑 MASTER OUTPUT</h5>
+                        <div class="master-strip mb-3 bg-dark border-secondary">
+                            <h6 class="text-warning fw-bold font-monospace">🚌 BUS GROUP (B1)</h6>
+                            <span class="val-label mb-1">BUS GAIN: <span id="txtBusVol">100</span>%</span>
+                            <input type="range" class="form-range" min="0" max="1.5" step="0.02" value="1.0" oninput="updateBusVolume(this.value)">
+                        </div>
+
+                        <div class="master-strip">
+                            <h5 class="text-danger fw-bold font-monospace mb-3">👑 MASTER OUT</h5>
                             <div class="mb-3">
-                                <span class="fader-label mb-1 text-light">MASTER FADER: <span id="txtMasterVol">100</span>%</span>
-                                <input type="range" class="form-range" id="masterVolumeFader" min="0" max="1.5" step="0.02" value="1.0" oninput="updateMasterVolume(this.value)">
+                                <span class="val-label mb-1 text-light">MASTER FADER: <span id="txtMasterVol">100</span>%</span>
+                                <input type="range" class="form-range" min="0" max="1.5" step="0.02" value="1.0" oninput="updateMasterVolume(this.value)">
                             </div>
-                            <div class="mb-2">
-                                <span class="fader-label text-info mb-1">🌌 REVERB FX RETURN (GLOBAL)</span>
-                                <input type="range" class="form-range" id="globalReverbFader" min="0" max="1.0" step="0.05" value="0.3" oninput="updateGlobalReverb(this.value)">
+                            <div>
+                                <span class="val-label text-info mb-1">GLOBAL REVERB RETURN: <span id="txtGlobalRev">30</span>%</span>
+                                <input type="range" class="form-range" min="0" max="1.0" step="0.05" value="0.3" oninput="updateGlobalReverb(this.value)">
                             </div>
                         </div>
                     </div>
@@ -80,11 +90,11 @@
             </div>
 
             <div class="col-lg-3">
-                <div class="ai-panel">
+                <div class="ai-console">
                     <h5 class="fw-bold text-info">🧠 AI Brain Assistant</h5>
                     <hr class="border-secondary my-3">
                     <div id="aiOutput">
-                        Sistem siap menerima multi-routing. Masukkan API Key dan klik tombol "Minta Panduan AI" untuk kalkulasi matrix gain, interupsi fader bus, atau penanganan bentrokan frekuensi antar track.
+                        Sistem multitrack dengan visualizer frekuensi siap dijalankan. Masukkan API key untuk panduan.
                     </div>
                 </div>
             </div>
@@ -94,25 +104,27 @@
 
 <script>
 // ==========================================
-// GLOBALS & STATE PARAMETERS
+// CORE DATA STATE
 // ==========================================
 let audioCtx = null;
 let tracks = []; 
 let db = null;
 let activeSources = [];
 
-// GLOBAL MASTER & BUS ROUTING NODES
+// NODES & VISUALIZER GLOBALS
 let masterGainNode = null;
 let busGainNode = null;
 let globalReverbNode = null;
 let globalReverbGainNode = null;
+let masterAnalyzerNode = null;
+let animationFrameId = null;
 
 let currentMasterVolume = 1.0;
 let currentBusVolume = 1.0;
 let currentGlobalReverbMix = 0.3;
 
-// INDEXEDDB STORAGE CONFIG
-const request = indexedDB.open("RoutingDAW_DB", 3);
+// INDEXEDDB DATABASE SETUP
+const request = indexedDB.open("UltimateDAW_DB", 4);
 request.onupgradeneeded = (e) => {
     db = e.target.result;
     if (!db.objectStoreNames.contains("audio_tracks")) {
@@ -131,8 +143,9 @@ function saveTrackToDB(name, arrayBuffer) {
         volume: 0.8, 
         panning: 0,
         isMuted: false,
-        routingTarget: "master", // Opsi: "master" atau "bus1"
-        fxSendLevel: 0.1,        // Sinyal parallel dikirim ke Global Reverb
+        isBypassed: false, // State Bypass Efek
+        routingTarget: "master",
+        fxSendLevel: 0.2,
         eqLow: 0, eqMid: 0, eqHigh: 0,
         compThreshold: -24
     };
@@ -147,7 +160,7 @@ function loadTracksFromDB() {
     store.openCursor().onsuccess = (event) => {
         const cursor = event.target.result;
         if (cursor) { tracks.push(cursor.value); cursor.continue(); } 
-        else { renderTracks(); }
+        else { renderTracks(); drawAllStaticWaveforms(); }
     };
 }
 
@@ -167,72 +180,72 @@ function importAudio(event) {
 }
 
 // ==========================================
-// CONSOLE MIXER UI RENDERER
+// RENDER MIXER CONSOLE UI
 // ==========================================
 function renderTracks() {
     const container = document.getElementById("tracksContainer");
     if (tracks.length === 0) {
-        container.innerHTML = `<p class="text-muted text-center my-5">Belum ada Track Studio. Silakan import berkas audio.</p>`;
+        container.innerHTML = `<p class="text-muted text-center my-5">Belum ada track. Silakan import berkas audio.</p>`;
         return;
     }
 
     container.innerHTML = tracks.map((track, index) => `
-        <div class="track-row ${track.isMuted ? 'muted' : ''}">
+        <div class="track-strip ${track.isMuted ? 'muted' : ''} ${track.isBypassed ? 'bypassed' : ''}" id="strip-${index}">
             <div class="row align-items-center">
                 <div class="col-md-4">
-                    <h6 class="text-truncate mb-1 fw-bold text-info" title="${track.name}">${track.name}</h6>
-                    <div class="d-flex gap-1 align-items-center">
-                        <span class="badge bg-dark border border-secondary text-light-50 font-monospace">CH ${index + 1}</span>
-                        <button class="btn btn-sm btn-mute ${track.isMuted ? 'btn-danger' : 'btn-outline-warning'} py-0 px-2" onclick="toggleMute(${index})">
-                            ${track.isMuted ? 'MUTED' : 'MUTE'}
-                        </button>
-                        <button class="btn btn-sm btn-link text-danger p-0 ms-2" style="font-size:12px;" onclick="deleteTrack(${track.id})">Delete</button>
+                    <h6 class="text-truncate mb-1 fw-bold text-light" title="${track.name}">${track.name}</h6>
+                    <div class="d-flex gap-1 align-items-center mb-2">
+                        <span class="badge bg-dark border border-secondary font-monospace text-info">CH ${index + 1}</span>
+                        <button class="btn btn-sm ${track.isMuted ? 'btn-danger' : 'btn-outline-warning'} py-0 px-2 btn-mute" onclick="toggleMute(${index})">MUTE</button>
+                        <button class="btn btn-sm ${track.isBypassed ? 'btn-warning text-dark' : 'btn-outline-secondary'} py-0 px-2" onclick="toggleBypass(${index})">BYPASS FX</button>
+                        <button class="btn btn-sm btn-link text-danger p-0 ms-2" style="font-size:11px;" onclick="deleteTrack(${track.id})">Delete</button>
                     </div>
+                    <canvas class="wave-canvas" id="waveCanvas-${index}"></canvas>
                 </div>
 
                 <div class="col-md-4">
                     <div class="mb-1">
-                        <span class="fader-label">VOL: ${Math.round(track.volume * 100)}%</span>
-                        <input type="range" class="form-range" min="0" max="1.5" step="0.02" value="${track.volume}" oninput="updateTrackParam(${index}, 'volume', this.value)">
+                        <span class="val-label">VOLUME: <span id="v-vol-${index}">${Math.round(track.volume * 100)}</span>%</span>
+                        <input type="range" class="form-range" min="0" max="1.5" step="0.02" value="${track.volume}" oninput="liveParamUpdate(${index}, 'volume', this.value)">
                     </div>
-                    <div class="row g-1">
+                    <div class="row g-2">
                         <div class="col-6">
-                            <span class="fader-label">PAN: ${track.panning}</span>
-                            <input type="range" class="form-range" min="-1" max="1" step="0.1" value="${track.panning}" oninput="updateTrackParam(${index}, 'panning', this.value)">
+                            <span class="val-label">PAN: <span id="v-pan-${index}">${track.panning}</span></span>
+                            <input type="range" class="form-range" min="-1" max="1" step="0.1" value="${track.panning}" oninput="liveParamUpdate(${index}, 'panning', this.value)">
                         </div>
                         <div class="col-6">
-                            <span class="fader-label text-info">FX SEND: ${Math.round(track.fxSendLevel * 100)}%</span>
-                            <input type="range" class="form-range" min="0" max="1.0" step="0.05" value="${track.fxSendLevel}" oninput="updateTrackParam(${index}, 'fxSendLevel', this.value)">
+                            <span class="val-label text-info">FX SEND: <span id="v-fx-${index}">${Math.round(track.fxSendLevel * 100)}</span>%</span>
+                            <input type="range" class="form-range" min="0" max="1.0" step="0.05" value="${track.fxSendLevel}" oninput="liveParamUpdate(${index}, 'fxSendLevel', this.value)">
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-4">
-                    <span class="fader-label text-warning mb-1">OUTPUT ROUTING TARGET</span>
-                    <select class="form-select form-select-sm bg-dark text-light border-secondary font-monospace" onchange="updateTrackParam(${index}, 'routingTarget', this.value)">
-                        <option value="master" ${track.routingTarget === 'master' ? 'selected' : ''}>DIRECT TO MASTER OUT</option>
-                        <option value="bus1" ${track.routingTarget === 'bus1' ? 'selected' : ''}>ASSIGN TO BUS GROUP (B1)</option>
+                    <span class="val-label text-warning mb-1">ROUTING OUT</span>
+                    <select class="form-select form-select-sm bg-dark text-light border-secondary font-monospace" onchange="liveParamUpdate(${index}, 'routingTarget', this.value)">
+                        <option value="master" ${track.routingTarget === 'master' ? 'selected' : ''}>DIRECT MASTER</option>
+                        <option value="bus1" ${track.routingTarget === 'bus1' ? 'selected' : ''}>BUS GROUP (B1)</option>
                     </select>
-                    <button class="btn btn-sm btn-outline-secondary w-100 text-start mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#fxBox-${index}" style="font-size:11px;">
-                        ⚙️ Channel Strip FX (EQ & COMP)
+                    <button class="btn btn-sm btn-outline-secondary w-100 text-start mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#fxRack-${index}" style="font-size:11px;">
+                        ⚙️ Channel Strip FX EQ & Compressor
                     </button>
                 </div>
             </div>
 
-            <div class="collapse fx-panel" id="fxBox-${index}">
+            <div class="collapse fx-rack" id="fxRack-${index}">
                 <div class="row g-2 font-monospace text-center" style="font-size:11px;">
-                    <div class="col-md-4 border-end border-secondary">
-                        <span class="fader-label text-info text-start">3-BAND EQ CONTROL</span>
-                        <div class="d-flex gap-2 justify-content-center mt-1">
-                            <div>Low<input type="range" class="form-range" min="-12" max="12" value="${track.eqLow}" oninput="updateTrackParam(${index}, 'eqLow', this.value)"></div>
-                            <div>Mid<input type="range" class="form-range" min="-12" max="12" value="${track.eqMid}" oninput="updateTrackParam(${index}, 'eqMid', this.value)"></div>
-                            <div>High<input type="range" class="form-range" min="-12" max="12" value="${track.eqHigh}" oninput="updateTrackParam(${index}, 'eqHigh', this.value)"></div>
+                    <div class="col-md-6 border-end border-secondary">
+                        <span class="val-label text-info text-start d-block mb-2">🎛️ 3-BAND EQ EQUALIZATION PARAMETER</span>
+                        <div class="d-flex gap-2 justify-content-center">
+                            <div>Low (80Hz)<input type="range" class="form-range" min="-12" max="12" value="${track.eqLow}" oninput="liveParamUpdate(${index}, 'eqLow', this.value)"><span id="v-eql-${index}">${track.eqLow}</span>dB</div>
+                            <div>Mid (1kHz)<input type="range" class="form-range" min="-12" max="12" value="${track.eqMid}" oninput="liveParamUpdate(${index}, 'eqMid', this.value)"><span id="v-eqm-${index}">${track.eqMid}</span>dB</div>
+                            <div>High (10kHz)<input type="range" class="form-range" min="-12" max="12" value="${track.eqHigh}" oninput="liveParamUpdate(${index}, 'eqHigh', this.value)"><span id="v-eqh-${index}">${track.eqHigh}</span>dB</div>
                         </div>
                     </div>
-                    <div class="col-md-8 text-start ps-3">
-                        <span class="fader-label text-success">CHANNEL DYNAMICS COMPRESSOR</span>
-                        <label class="fader-label mt-1">Threshold: ${track.compThreshold} dB</label>
-                        <input type="range" class="form-range" min="-60" max="0" value="${track.compThreshold}" oninput="updateTrackParam(${index}, 'compThreshold', this.value)">
+                    <div class="col-md-6 text-start ps-3">
+                        <span class="val-label text-success">📉 DYNAMICS HARD COMPRESSOR</span>
+                        <label class="val-label mt-1">Threshold: <span id="v-comp-${index}">${track.compThreshold}</span> dB</label>
+                        <input type="range" class="form-range" min="-60" max="0" value="${track.compThreshold}" oninput="liveParamUpdate(${index}, 'compThreshold', this.value)">
                     </div>
                 </div>
             </div>
@@ -241,7 +254,7 @@ function renderTracks() {
 }
 
 // ==========================================
-// ADVANCED MULTI-ROUTING AUDIO ENGINE
+// REALTIME GRAPH AUDIO PROCESSING ENGINE
 // ==========================================
 async function playAll() {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -251,29 +264,36 @@ async function playAll() {
     if (tracks.length === 0) return;
 
     const playBtn = document.getElementById("btnPlay");
-    playBtn.innerHTML = "⏳ Initializing Matrix Core...";
+    playBtn.innerHTML = "⏳ Buffering System...";
     playBtn.className = "btn btn-warning px-4 fw-bold";
 
-    // 1. MEMBANGUN INFRASTRUKTUR MASTER DAN BUS NODE GLOBAL
+    // Build Master Infrastructure Nodes
     masterGainNode = audioCtx.createGain();
     masterGainNode.gain.setValueAtTime(currentMasterVolume, audioCtx.currentTime);
-    masterGainNode.connect(audioCtx.destination);
 
+    // Build Master Realtime Frequency Analyzer Node
+    masterAnalyzerNode = audioCtx.createAnalyzer();
+    masterAnalyzerNode.fftSize = 256;
+    
+    // Topology Connection: Master Gain -> Analyzer Node -> Hardware Destination Speakers
+    masterGainNode.connect(masterAnalyzerNode);
+    masterAnalyzerNode.connect(audioCtx.destination);
+
+    // Build Group Bus Lane B1
     busGainNode = audioCtx.createGain();
     busGainNode.gain.setValueAtTime(currentBusVolume, audioCtx.currentTime);
-    busGainNode.connect(masterGainNode); // Bus Group mengalir bermuara ke Master Out
+    busGainNode.connect(masterGainNode);
 
-    // 2. MEMBANGUN GLOBAL PARALLEL FX RETURN (REVERB SPACE ENGINE)
+    // Build Parallel Shared FX Auxiliary Return (Reverb Node)
     globalReverbNode = audioCtx.createConvolver();
-    globalReverbNode.buffer = createSyntheticImpulse(2.0, 1.8);
-    
+    globalReverbNode.buffer = createSyntheticImpulse(2.0, 1.5);
     globalReverbGainNode = audioCtx.createGain();
     globalReverbGainNode.gain.setValueAtTime(currentGlobalReverbMix, audioCtx.currentTime);
     
     globalReverbNode.connect(globalReverbGainNode);
-    globalReverbGainNode.connect(masterGainNode); // Reverb wet signal dialirkan ke Master Out
+    globalReverbGainNode.connect(masterGainNode);
 
-    // 3. GENERATE REALTIME ROUTING STRIP UNTUK SETIAP CHANNEL
+    // Routing System Configuration Per-Track
     tracks.forEach((track) => {
         const bufferCopy = track.audioData.slice(0);
         
@@ -281,59 +301,64 @@ async function playAll() {
             const source = audioCtx.createBufferSource();
             source.buffer = audioBuffer;
 
-            // Injeksi Modul EQ Nodes
+            // Parametric Hardware EQ Module
             const eqLowNode = audioCtx.createBiquadFilter(); eqLowNode.type = "lowshelf"; eqLowNode.frequency.value = 80;
-            eqLowNode.gain.setValueAtTime(track.eqLow, audioCtx.currentTime);
-
             const eqMidNode = audioCtx.createBiquadFilter(); eqMidNode.type = "peaking"; eqMidNode.frequency.value = 1000;
-            eqMidNode.gain.setValueAtTime(track.eqMid, audioCtx.currentTime);
-
             const eqHighNode = audioCtx.createBiquadFilter(); eqHighNode.type = "highshelf"; eqHighNode.frequency.value = 10000;
-            eqHighNode.gain.setValueAtTime(track.eqHigh, audioCtx.currentTime);
 
-            // Injeksi Modul Compressor Node
+            // Compressor Module
             const compNode = audioCtx.createDynamicsCompressor();
-            compNode.threshold.setValueAtTime(track.compThreshold, audioCtx.currentTime);
             compNode.ratio.setValueAtTime(4.0, audioCtx.currentTime);
 
-            // Injeksi Main Channel Gain & Panner
+            // Terapkan nilai awal parameter atau bypass jika aktif
+            if (track.isBypassed) {
+                eqLowNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                eqMidNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                eqHighNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                compNode.threshold.setValueAtTime(0, audioCtx.currentTime);
+            } else {
+                eqLowNode.gain.setValueAtTime(track.eqLow, audioCtx.currentTime);
+                eqMidNode.gain.setValueAtTime(track.eqMid, audioCtx.currentTime);
+                eqHighNode.gain.setValueAtTime(track.eqHigh, audioCtx.currentTime);
+                compNode.threshold.setValueAtTime(track.compThreshold, audioCtx.currentTime);
+            }
+
+            // Main Channel Gain & Stereo Field Panner
             const gainNode = audioCtx.createGain();
-            // Jika status Mute bernilai true, volume di-set ke 0 secara mutlak
             const targetVolume = track.isMuted ? 0 : track.volume;
             gainNode.gain.setValueAtTime(targetVolume, audioCtx.currentTime);
 
             const pannerNode = audioCtx.createStereoPanner();
             pannerNode.pan.setValueAtTime(track.panning, audioCtx.currentTime);
 
-            // Injeksi Dedicated FX Send Node (Jalur Aux Send)
+            // Auxiliary FX Send Level
             const fxSendGainNode = audioCtx.createGain();
-            fxSendGainNode.gain.setValueAtTime(track.fxSendLevel, audioCtx.currentTime);
+            const targetFxSend = track.isBypassed ? 0 : track.fxSendLevel;
+            fxSendGainNode.gain.setValueAtTime(targetFxSend, audioCtx.currentTime);
 
-            // ==========================================
-            // MATRIX ROUTING CONNECTIONS
-            // ==========================================
-            // Pre-routing internal strip
+            // CONNECTING MATRIX HARDWARE CHAIN
             source.connect(eqLowNode);
             eqLowNode.connect(eqMidNode);
             eqMidNode.connect(eqHighNode);
             eqHighNode.connect(compNode);
+            
             compNode.connect(gainNode);
             gainNode.connect(pannerNode);
 
-            // Jalur A: Main Output Selection (Direct Master vs Bus Group Grouping)
+            // Channel Output Lane Target Selection Matrix
             if (track.routingTarget === "bus1") {
                 pannerNode.connect(busGainNode);
             } else {
                 pannerNode.connect(masterGainNode);
             }
 
-            // Jalur B: Parallel FX Send Path (Auxiliary Send Bus)
+            // Route Aux Send Level Parallel to FX Reverb Bus
             compNode.connect(fxSendGainNode);
             fxSendGainNode.connect(globalReverbNode);
 
             source.start(0);
 
-            // Amankan pointer object node aktif ke memory RAM State
+            // Track Pointer Nodes Allocation
             activeSources.push({
                 id: track.id,
                 source, eqLowNode, eqMidNode, eqHighNode, compNode, gainNode, pannerNode, fxSendGainNode
@@ -341,11 +366,15 @@ async function playAll() {
 
             playBtn.innerHTML = "⏸ Playing Mix Session";
             playBtn.className = "btn btn-info px-4 fw-bold";
-        }).catch(err => console.error("Decodification Error Chain:", err));
+        });
     });
+
+    // Jalankan visualizer grafik frekuensi spectrum master
+    startSpectrumVisualization();
 }
 
 function stopAll() {
+    if (animationFrameId) cancelAnimationFrame(animationFrameId);
     activeSources.forEach(s => { try { s.source.stop(); } catch(e){} });
     activeSources = [];
     const playBtn = document.getElementById("btnPlay");
@@ -366,116 +395,222 @@ function createSyntheticImpulse(duration, decay) {
 }
 
 // ==========================================
-// REALTIME CONTROLLER & ROUTING AUTOMATION
+// FIX BUG FADER: REALTIME DOM VALUE MANAGEMENT
 // ==========================================
-function updateTrackParam(index, paramName, value) {
-    if (paramName === 'volume' || paramName === 'panning' || paramName === 'fxSendLevel' || paramName === 'eqLow' || paramName === 'eqMid' || paramName === 'eqHigh' || paramName === 'compThreshold') {
-        value = parseFloat(value);
-    }
+function liveParamUpdate(index, paramName, value) {
+    if (paramName !== 'routingTarget') value = parseFloat(value);
     
+    // Simpan nilai parameter ke database state RAM lokal
     tracks[index][paramName] = value;
     const active = activeSources.find(s => s.id === tracks[index].id);
 
-    if (active && audioCtx) {
-        switch(paramName) {
-            case 'volume':
-                if (!tracks[index].isMuted) active.gainNode.gain.setValueAtTime(value, audioCtx.currentTime);
-                break;
-            case 'panning':
-                active.pannerNode.pan.setValueAtTime(value, audioCtx.currentTime);
-                break;
-            case 'fxSendLevel':
-                active.fxSendGainNode.gain.setValueAtTime(value, audioCtx.currentTime);
-                break;
-            case 'eqLow': active.eqLowNode.gain.setValueAtTime(value, audioCtx.currentTime); break;
-            case 'eqMid': active.eqMidNode.gain.setValueAtTime(value, audioCtx.currentTime); break;
-            case 'eqHigh': active.eqHighNode.gain.setValueAtTime(value, audioCtx.currentTime); break;
-            case 'compThreshold': active.compNode.threshold.setValueAtTime(value, audioCtx.currentTime); break;
-            case 'routingTarget':
-                // Memutus jalur routing asal dan mengubah penempatan jalur secara dinamis saat lagu berjalan
+    // Manipulasi Text Label DOM Secara Langsung Tanpa Render Ulang Baris Fader!
+    switch(paramName) {
+        case 'volume': 
+            document.getElementById(`v-vol-${index}`).innerText = Math.round(value * 100);
+            if (active && !tracks[index].isMuted) active.gainNode.gain.setValueAtTime(value, audioCtx.currentTime);
+            break;
+        case 'panning': 
+            document.getElementById(`v-pan-${index}`).innerText = value;
+            if (active) active.pannerNode.pan.setValueAtTime(value, audioCtx.currentTime);
+            break;
+        case 'fxSendLevel': 
+            document.getElementById(`v-fx-${index}`).innerText = Math.round(value * 100);
+            if (active && !tracks[index].isBypassed) active.fxSendGainNode.gain.setValueAtTime(value, audioCtx.currentTime);
+            break;
+        case 'eqLow': 
+            document.getElementById(`v-eql-${index}`).innerText = value;
+            if (active && !tracks[index].isBypassed) active.eqLowNode.gain.setValueAtTime(value, audioCtx.currentTime);
+            break;
+        case 'eqMid': 
+            document.getElementById(`v-eqm-${index}`).innerText = value;
+            if (active && !tracks[index].isBypassed) active.eqMidNode.gain.setValueAtTime(value, audioCtx.currentTime);
+            break;
+        case 'eqHigh': 
+            document.getElementById(`v-eqh-${index}`).innerText = value;
+            if (active && !tracks[index].isBypassed) active.eqHighNode.gain.setValueAtTime(value, audioCtx.currentTime);
+            break;
+        case 'compThreshold': 
+            document.getElementById(`v-comp-${index}`).innerText = value;
+            if (active && !tracks[index].isBypassed) active.compNode.threshold.setValueAtTime(value, audioCtx.currentTime);
+            break;
+        case 'routingTarget':
+            if (active) {
                 active.pannerNode.disconnect();
-                if (value === "bus1") {
-                    active.pannerNode.connect(busGainNode);
-                } else {
-                    active.pannerNode.connect(masterGainNode);
-                }
-                break;
-        }
+                if (value === "bus1") active.pannerNode.connect(busGainNode);
+                else active.pannerNode.connect(masterGainNode);
+            }
+            break;
     }
-    // Update data text label fader tanpa merusak focus handling slider
-    document.getElementById("txtMasterVol").innerText = Math.round(currentMasterVolume * 100);
-    document.getElementById("txtBusVol").innerText = Math.round(currentBusVolume * 100);
 }
 
+// ACTIONS CONTROLLER MUTE & BYPASS
 function toggleMute(index) {
     tracks[index].isMuted = !tracks[index].isMuted;
-    renderTracks(); // Render ulang strip channel untuk memunculkan efek abu-abu pudar
+    const strip = document.getElementById(`strip-${index}`);
+    if(tracks[index].isMuted) strip.classList.add('muted'); else strip.classList.remove('muted');
 
     const active = activeSources.find(s => s.id === tracks[index].id);
     if (active && audioCtx) {
-        // Jika di-mute, gain dilempar langsung ke nol mutlak secara instan
         const finalGain = tracks[index].isMuted ? 0 : tracks[index].volume;
         active.gainNode.gain.setValueAtTime(finalGain, audioCtx.currentTime);
     }
 }
 
-// CONTROLLER KONSOL MASTER & BUS
+function toggleBypass(index) {
+    tracks[index].isBypassed = !tracks[index].isBypassed;
+    const strip = document.getElementById(`strip-${index}`);
+    const btn = strip.querySelector("button[onclick='toggleBypass("+index+")']");
+    
+    if(tracks[index].isBypassed) {
+        strip.classList.add('bypassed');
+        btn.className = "btn btn-sm btn-warning text-dark py-0 px-2";
+    } else {
+        strip.classList.remove('bypassed');
+        btn.className = "btn btn-sm btn-outline-secondary py-0 px-2";
+    }
+
+    const active = activeSources.find(s => s.id === tracks[index].id);
+    if (active && audioCtx) {
+        if (tracks[index].isBypassed) {
+            // Bypass aktif = Flat parameter (0 dB EQ & 0 dB Threshold Comp)
+            active.eqLowNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            active.eqMidNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            active.eqHighNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            active.compNode.threshold.setValueAtTime(0, audioCtx.currentTime);
+            active.fxSendGainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+        } else {
+            // Kembalikan parameter mixing asal
+            active.eqLowNode.gain.setValueAtTime(tracks[index].eqLow, audioCtx.currentTime);
+            active.eqMidNode.gain.setValueAtTime(tracks[index].eqMid, audioCtx.currentTime);
+            active.eqHighNode.gain.setValueAtTime(tracks[index].eqHigh, audioCtx.currentTime);
+            active.compNode.threshold.setValueAtTime(tracks[index].compThreshold, audioCtx.currentTime);
+            active.fxSendGainNode.gain.setValueAtTime(tracks[index].fxSendLevel, audioCtx.currentTime);
+        }
+    }
+}
+
+// CONTROLLER CONSOLE MASTER LALU LINTAS SINYAL
 function updateMasterVolume(val) {
     currentMasterVolume = parseFloat(val);
     document.getElementById("txtMasterVol").innerText = Math.round(currentMasterVolume * 100);
-    if (masterGainNode && audioCtx) {
-        masterGainNode.gain.setValueAtTime(currentMasterVolume, audioCtx.currentTime);
-    }
+    if (masterGainNode) masterGainNode.gain.setValueAtTime(currentMasterVolume, audioCtx.currentTime);
 }
 
 function updateBusVolume(val) {
     currentBusVolume = parseFloat(val);
     document.getElementById("txtBusVol").innerText = Math.round(currentBusVolume * 100);
-    if (busGainNode && audioCtx) {
-        busGainNode.gain.setValueAtTime(currentBusVolume, audioCtx.currentTime);
-    }
+    if (busGainNode) busGainNode.gain.setValueAtTime(currentBusVolume, audioCtx.currentTime);
 }
 
 function updateGlobalReverb(val) {
     currentGlobalReverbMix = parseFloat(val);
-    if (globalReverbGainNode && audioCtx) {
-        globalReverbGainNode.gain.setValueAtTime(currentGlobalReverbMix, audioCtx.currentTime);
-    }
+    document.getElementById("txtGlobalRev").innerText = Math.round(currentGlobalReverbMix * 100);
+    if (globalReverbGainNode) globalReverbGainNode.gain.setValueAtTime(currentGlobalReverbMix, audioCtx.currentTime);
 }
 
 // ==========================================
-// DEEPSEEK ROUTING INTELLIGENCE INFERENCE
+// ADVANCED DISPLAY: STATIC AUDIO WAVEFORM GENERATOR
+// ==========================================
+function drawAllStaticWaveforms() {
+    // Inisialisasi AudioContext lokal sementara untuk ekstraksi puncak gelombang audio
+    const offlineCtx = new (window.AudioContext || window.webkitAudioContext)();
+    tracks.forEach((track, index) => {
+        const canvas = document.getElementById(`waveCanvas-${index}`);
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        const bufferCopy = track.audioData.slice(0);
+
+        offlineCtx.decodeAudioData(bufferCopy).then((audioBuffer) => {
+            const rawData = audioBuffer.getChannelData(0); // Ambil data kanal Left channel
+            const samples = 120; // Resolusi baris wave garis vertikal
+            const blockSize = Math.floor(rawData.length / samples);
+            let peaks = [];
+
+            for (let i = 0; i < samples; i++) {
+                let blockStart = blockSize * i;
+                let sum = 0;
+                for (let j = 0; j < blockSize; j++) {
+                    sum += Math.abs(rawData[blockStart + j]);
+                }
+                peaks.push(sum / blockSize);
+            }
+
+            // Mulai Menggambar ke Canvas Strip
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#3b82f6";
+            const w = canvas.width / peaks.length;
+            
+            peaks.forEach((peak, pIdx) => {
+                const h = peak * canvas.height * 2.5; // Mengatur faktor skala grafik tinggi wave
+                const x = pIdx * w;
+                const y = (canvas.height - h) / 2;
+                ctx.fillRect(x, y, w - 1, h);
+            });
+        });
+    });
+}
+
+// ==========================================
+// ADVANCED DISPLAY: MASTER SPECTRUM FREQUENCY VISUALIZER
+// ==========================================
+function startSpectrumVisualization() {
+    const canvas = document.getElementById("spectrumMeter");
+    const ctx = canvas.getContext("2d");
+    const bufferLength = masterAnalyzerNode.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    function draw() {
+        animationFrameId = requestAnimationFrame(draw);
+        masterAnalyzerNode.getByteFrequencyData(dataArray);
+
+        ctx.fillStyle = "#020617";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const barWidth = (canvas.width / bufferLength) * 1.5;
+        let barHeight;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+            barHeight = dataArray[i] / 1.8;
+
+            // Efek Gradasi Warna Spektrum Hijau Kuning Merah Pro DAW
+            const r = barHeight + (25 * (i / bufferLength));
+            const g = 250 * (1 - (i / bufferLength));
+            const b = 150;
+
+            ctx.fillStyle = `rgb(${r},${g},${b})`;
+            ctx.fillRect(x, canvas.height - barHeight, barWidth - 1, barHeight);
+
+            x += barWidth;
+        }
+    }
+    draw();
+}
+
+// ==========================================
+// DEEPSEEK CORE INTEGRATION
 // ==========================================
 async function askAiAssistant() {
     const apiKey = document.getElementById("apiKey").value;
     const aiOutput = document.getElementById("aiOutput");
-    
-    if (!apiKey) {
-        aiOutput.innerHTML = `<span class="text-danger">⚠️ Harap sertakan API Key DeepSeek pada kolom di atas!</span>`;
-        return;
-    }
+    if (!apiKey) { aiOutput.innerHTML = `<span class="text-danger">⚠️ Input API Key DeepSeek pada kolom di atas!</span>`; return; }
 
-    aiOutput.innerHTML = `<div class="spinner-border spinner-border-sm text-info" role="status"></div> AI sedang menginspeksi alur routing Matrix, Bus, Aux Send, dan Mute state...`;
+    aiOutput.innerHTML = `<div class="spinner-border spinner-border-sm text-info" role="status"></div> AI menganalisis matrix fader dan kurva respons frekuensi...`;
 
-    // Ambil struktur arsitektur mixing komprehensif saat ini
-    const routingSnapshot = {
-        global_master_volume: currentMasterVolume,
-        global_bus_b1_volume: currentBusVolume,
-        global_reverb_fx_return: currentGlobalReverbMix,
+    const snapshot = {
+        master_volume: currentMasterVolume,
+        bus_b1_volume: currentBusVolume,
+        global_reverb_return: currentGlobalReverbMix,
         channels: tracks.map((t, i) => ({
-            ch: i + 1,
-            file: t.name,
-            fader_vol: t.volume,
-            pan: t.panning,
-            is_muted: t.isMuted,
-            output_routed_to: t.routingTarget,
-            aux_fx_send_level: t.fxSendLevel,
-            eq: { low: t.eqLow, mid: t.eqMid, high: t.eqHigh },
-            compressor_threshold: t.compThreshold
+            ch: i + 1, file: t.name, volume: t.volume, pan: t.panning,
+            is_muted: t.isMuted, is_bypassed: t.isBypassed, routed_to: t.routingTarget,
+            fx_send_level: t.fxSendLevel, eq: { low_80Hz: t.eqLow, mid_1kHz: t.eqMid, high_10kHz: t.eqHigh },
+            compressor_threshold_dB: t.compThreshold
         }))
     };
 
-    const prompt = `Anda adalah Mastering & Mixing Engineer Senior. Analisis skema routing matriks DAW berikut: ${JSON.stringify(routingSnapshot)}. Berikan rekomendasi teknis mengenai manajemen struktur gain staging di Master Fader, optimalisasi pengelompokan instrumen pada Bus B1, serta rasio basah/kering (Aux FX Send) agar ruang reverb tidak membuat artikulasi mixing menjadi keruh. Berikan umpan balik yang terstruktur, padat, dan gunakan Bahasa Indonesia profesional.`;
+    const prompt = `Anda adalah Sound Engineer Profesional Senior. Berikan analisis taktis mengenai session mixing berikut: ${JSON.stringify(snapshot)}. Berikan rekomendasi angka fader, pembagian EQ, penanganan gain staging bus, status bypass, serta manajemen reverb return. Sampaikan dengan ringkas, padat, langsung ke angka tujuan, menggunakan Bahasa Indonesia profesional.`;
 
     try {
         const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
@@ -483,21 +618,10 @@ async function askAiAssistant() {
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
             body: JSON.stringify({ model: "deepseek-chat", messages: [{ role: "user", content: prompt }], temperature: 0.4 })
         });
-
-        if (response.status === 402) {
-            aiOutput.innerHTML = `<span class="text-danger">❌ Error 402: Saldo API Key DeepSeek habis.</span>`;
-            return;
-        }
-
+        if (response.status === 402) { aiOutput.innerHTML = `<span class="text-danger">❌ Saldo API Key Habis (Error 402).</span>`; return; }
         const data = await response.json();
-        if (data.choices && data.choices[0]) {
-            aiOutput.innerHTML = data.choices[0].message.content.replace(/\n/g, "<br>");
-        } else {
-            aiOutput.innerHTML = "Gagal memproses data kembalian instruksi AI.";
-        }
-    } catch (err) {
-        aiOutput.innerHTML = `<span class="text-danger">🚨 Gangguan Koneksi API: ${err.message}</span>`;
-    }
+        if (data.choices && data.choices[0]) aiOutput.innerHTML = data.choices[0].message.content.replace(/\n/g, "<br>");
+    } catch (err) { aiOutput.innerHTML = `<span class="text-danger">🚨 Error: ${err.message}</span>`; }
 }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
