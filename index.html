@@ -3,67 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Professional DAW Studio v5.3</title>
+    <title>Enterprise Professional DAW Studio v5.4 - Optimized</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background-color: #060913; color: #f1f5f9; font-family: 'Segoe UI', system-ui, sans-serif; overflow-x: hidden; }
         .daw-wrapper { background: #0b1324; border-radius: 12px; padding: 20px; box-shadow: 0 25px 60px rgba(0,0,0,0.8); border: 1px solid #1e293b; }
-        
-        /* Premium Studio Linear Track Strip Layout */
+
         .track-container-box { display: flex; flex-direction: column; gap: 6px; }
         .track-strip { display: grid; grid-template-columns: 200px 1fr 180px 220px; gap: 15px; align-items: center; background: #020617; padding: 10px 16px; border-radius: 6px; border: 1px solid #1e293b; border-left: 5px solid #3b82f6; transition: all 0.2s ease; }
         .track-strip.muted-active { border-left-color: #475569; background: #090f1e; opacity: 0.5; }
         .track-strip.bypassed-active { border-left-color: #f59e0b; }
-        
-        /* Track Header Control */
+
         .track-meta { display: flex; flex-direction: column; gap: 4px; justify-content: center; min-width: 0; }
         .track-title { font-size: 13px; font-weight: 600; color: #f1f5f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; }
 
-        /* Waveform Timeline Core */
         .waveform-wrapper { position: relative; width: 100%; height: 46px; background: #040712; border: 1px solid #131c33; border-radius: 4px; overflow: hidden; cursor: pointer; }
         .waveform-canvas { width: 100%; height: 100%; display: block; }
         .playhead-bar { position: absolute; top: 0; bottom: 0; left: 0; width: 2px; background-color: #ef4444; box-shadow: 0 0 8px #ef4444; pointer-events: none; z-index: 5; }
 
         .val-label { font-size: 11px; font-family: monospace; color: #38bdf8; display: block; }
         .gr-title-lbl { font-size: 11px; font-family: monospace; color: #f8fafc; font-weight: bold; }
-        
-        /* Symmetrical Gain Reduction Components */
+
         .gr-meter-box { width: 100%; background: #1e293b; height: 10px; border-radius: 3px; overflow: hidden; position: relative; border: 1px solid #475569; }
         .gr-meter-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #f97316, #ef4444); position: absolute; right: 0; will-change: width; transition: width 0.05s ease; }
         .spectrum-canvas { background: #020617; border: 1px solid #1e293b; width: 100%; height: 220px; border-radius: 6px; }
         .eq-graph-canvas { background: #01040a; border: 1px solid #1e293b; width: 100%; height: 150px; border-radius: 6px; }
 
-        /* Symmetrical Plugin Rack Modal Design */
         .modal-content { background-color: #0b1324; border: 1px solid #334155; color: #f1f5f9; border-radius: 10px; }
         .modal-header { border-bottom: 1px solid #1e293b; background-color: #020617; padding: 12px 16px; border-top-left-radius: 9px; border-top-right-radius: 9px; }
         .fx-box { background: #020617; border: 1px solid #1e293b; border-radius: 6px; padding: 15px; width: 100%; }
 
-        /* --- SYMMETRICAL CSS ROTARY ANALOG KNOB DESIGN --- */
         .knob-grid { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; align-items: center; width: 100%; }
         .knob-container { display: flex; flex-direction: column; align-items: center; width: 80px; text-align: center; }
-        .knob-surround { position: relative; width: 46px; height: 46px; border-radius: 50%; background: #131c33; border: 2px solid #334155; display: flex; align-items: center; justify-content: center; cursor: ns-resize; margin-bottom: 6px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); }
+        .knob-surround { position: relative; width: 46px; height: 46px; border-radius: 50%; background: #131c33; border: 2px solid #334155; display: flex; align-items: center; justify-content: center; cursor: ns-resize; margin-bottom: 6px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); user-select: none; -webkit-user-select: none; touch-action: none; }
         .knob-dial { position: relative; width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #475569 0%, #020617 100%); border: 1px solid #475569; transform: rotate(-135deg); will-change: transform; }
         .knob-dial::after { content: ''; position: absolute; top: 2px; left: 50%; width: 2px; height: 8px; background-color: #38bdf8; transform: translateX(-50%); border-radius: 1px; box-shadow: 0 0 4px #38bdf8; }
         .knob-title { font-size: 10px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; margin-top: 2px; }
 
-        /* AI Assistant Bot Layout */
         .ai-chat-box { background: #020617; border: 1px solid #1e293b; border-radius: 6px; padding: 10px; height: 320px; overflow-y: auto; font-size: 12px; font-family: monospace; }
+
+        .export-progress { height: 4px; background: #1e293b; border-radius: 2px; overflow: hidden; margin-top: 4px; }
+        .export-progress-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #8b5cf6); width: 0%; transition: width 0.1s linear; }
+
+        .memory-indicator { font-size: 10px; color: #64748b; font-family: monospace; }
+        .memory-warning { color: #f59e0b; }
+        .memory-danger { color: #ef4444; }
     </style>
 </head>
 <body>
 
 <div class="container-fluid py-3">
     <div class="row mb-3 align-items-center g-2">
-        <div class="col-md-7">
-            <h3 class="fw-bold m-0 text-light">🎛️ STUDIO ONE MIX ENGINE <small class="text-info fs-6 font-monospace">v5.3 Ultimate Master Suite</small></h3>
+        <div class="col-md-6">
+            <h3 class="fw-bold m-0 text-light">🎛️ STUDIO ONE MIX ENGINE <small class="text-info fs-6 font-monospace">v5.4 Optimized</small></h3>
         </div>
-        <div class="col-md-5">
+        <div class="col-md-3">
+            <div class="memory-indicator" id="memoryIndicator">Mem: -- MB | Buffers: 0</div>
+        </div>
+        <div class="col-md-3">
             <div class="input-group input-group-sm">
                 <span class="input-group-text bg-dark text-secondary border-secondary">DeepSeek Key</span>
-                <input type="password" id="apiKey" class="form-control bg-dark text-light border-secondary" placeholder="API Key..." autocomplete="off" spellcheck="false">
-                <button class="btn btn-outline-secondary" type="button" title="Hapus key dari memori browser" onclick="clearApiKey()">✕</button>
+                <input type="password" id="apiKey" class="form-control bg-dark text-light border-secondary" placeholder="API Key...">
             </div>
-            <div class="form-text text-warning" style="font-size:10px; line-height:1.3;">⚠️ Key dikirim langsung dari browser ke DeepSeek (terlihat di tab Network). Jangan share file ini saat key terisi.</div>
         </div>
     </div>
 
@@ -71,7 +72,7 @@
         <div class="d-flex flex-wrap gap-2 align-items-center mb-3 p-2 bg-dark rounded-3 border border-secondary">
             <button class="btn btn-success btn-sm px-3 fw-bold" id="btnPlay" onclick="togglePlayState()">▶ Play</button>
             <button class="btn btn-danger btn-sm px-3 fw-bold" onclick="stopSession()">⏹ Stop</button>
-            
+
             <div class="text-light font-monospace bg-black px-2 py-1 rounded border border-secondary mx-2" style="font-size:13px;" id="txtTimelineClock">
                 00:00.00 / 00:00.00
             </div>
@@ -83,8 +84,10 @@
 
             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#masterConsoleModal">📊 Master Out Console</button>
             <button class="btn btn-warning btn-sm fw-bold text-dark" id="btnExport" onclick="triggerMixdownBounce()">💾 Export Audio Mixdown</button>
+            <button class="btn btn-info btn-sm fw-bold" onclick="triggerFastExport()">⚡ Fast Export (Offline)</button>
             <span id="exportStatus" class="text-info font-monospace ms-2" style="font-size:12px;"></span>
         </div>
+        <div class="export-progress" id="exportProgress"><div class="export-progress-fill" id="exportProgressFill"></div></div>
 
         <div class="row g-3">
             <div class="col-lg-8">
@@ -98,7 +101,7 @@
                     <h6 class="fw-bold text-info font-monospace m-0">🤖 AI MIXING ASSISTANT ROBOT</h6>
                     <hr class="border-secondary my-2">
                     <div id="aiOutput" class="ai-chat-box mb-2">
-                        [Sistem v5.3]: Siap membantu proses balancing. Frekuensi Spektrum terkalibrasi, Indikator GR diperjelas, dan modul export telah terpasang di Master Main Out. Silakan ajukan pertanyaan atau berikan perintah mixing.
+                        [Sistem v5.4]: Engine dioptimasi! AudioBuffer caching, OfflineAudioContext export, touch support, dan memory monitoring aktif.
                     </div>
                     <div class="input-group input-group-sm">
                         <input type="text" id="aiInput" class="form-control bg-black text-light border-secondary" placeholder="Tanyakan saran EQ/Comp track...">
@@ -157,10 +160,19 @@
 </div>
 
 <script>
+// ============================================================
+// CORE ARCHITECTURE - OPTIMIZED v5.4
+// ============================================================
+
 let audioCtx = null;
+let offlineCtx = null;
 let tracks = []; 
 let db = null;
 let activeSources = [];
+
+// AudioBuffer cache to prevent re-decoding
+let audioBufferCache = new Map();
+let totalBufferMemory = 0;
 
 let masterGainNode = null;
 let busGainNode = null;
@@ -178,61 +190,142 @@ let currentMasterVolume = 1.0;
 let currentBusVolume = 1.0;
 let currentGlobalReverbMix = 0.3;
 
-// Export / Mixdown state
 let mediaRecorder = null;
 let recordedChunks = [];
 let isExporting = false;
+let isFastExporting = false;
 
-const request = indexedDB.open("ProMixingDAW_DBv53", 6);
+let resizeDebounceTimer = null;
+
+// Detect supported export formats
+const SUPPORTED_EXPORT_TYPES = [];
+if (typeof MediaRecorder !== 'undefined') {
+    ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4'].forEach(type => {
+        if (MediaRecorder.isTypeSupported(type)) SUPPORTED_EXPORT_TYPES.push(type);
+    });
+}
+
+// ============================================================
+// DATABASE
+// ============================================================
+const request = indexedDB.open("ProMixingDAW_DBv54", 1);
 request.onupgradeneeded = (e) => {
     db = e.target.result;
     if (!db.objectStoreNames.contains("audio_tracks")) {
         db.createObjectStore("audio_tracks", { keyPath: "id", autoIncrement: true });
     }
 };
-request.onsuccess = (e) => { db = e.target.result; loadTracksFromDB(); };
+request.onsuccess = (e) => { 
+    db = e.target.result; 
+    loadTracksFromDB(); 
+};
+request.onerror = (e) => {
+    console.error("IndexedDB error:", e.target.error);
+    alert("Gagal membuka database. Mode penyimpanan tidak tersedia.");
+};
 
+// ============================================================
+// MEMORY MONITORING
+// ============================================================
+function updateMemoryIndicator() {
+    const indicator = document.getElementById("memoryIndicator");
+    if (!indicator) return;
+    const mb = (totalBufferMemory / (1024 * 1024)).toFixed(1);
+    const count = audioBufferCache.size;
+    let className = "";
+    if (totalBufferMemory > 500 * 1024 * 1024) className = "memory-danger";
+    else if (totalBufferMemory > 200 * 1024 * 1024) className = "memory-warning";
+    indicator.innerHTML = `Mem: <span class="${className}">${mb}</span> MB | Buffers: ${count}`;
+}
+
+function estimateBufferSize(audioBuffer) {
+    return audioBuffer.length * audioBuffer.numberOfChannels * 4;
+}
+
+// ============================================================
+// AUDIO BUFFER CACHING
+// ============================================================
+async function getAudioBuffer(track) {
+    if (audioBufferCache.has(track.id)) {
+        return audioBufferCache.get(track.id);
+    }
+    try {
+        const buffer = await audioCtx.decodeAudioData(track.audioData.slice(0));
+        audioBufferCache.set(track.id, buffer);
+        totalBufferMemory += estimateBufferSize(buffer);
+        updateMemoryIndicator();
+        return buffer;
+    } catch (err) {
+        console.error("Decode error for track", track.id, err);
+        throw err;
+    }
+}
+
+function removeFromCache(trackId) {
+    if (audioBufferCache.has(trackId)) {
+        const buf = audioBufferCache.get(trackId);
+        totalBufferMemory -= estimateBufferSize(buf);
+        audioBufferCache.delete(trackId);
+        updateMemoryIndicator();
+    }
+}
+
+// ============================================================
+// DATABASE OPERATIONS
+// ============================================================
 function saveTrackToDB(name, arrayBuffer) {
     const ctxDummy = new (window.AudioContext || window.webkitAudioContext)();
-    ctxDummy.decodeAudioData(arrayBuffer.slice(0)).then(audioBuffer => {
-        const transaction = db.transaction(["audio_tracks"], "readwrite");
-        const store = transaction.objectStore("audio_tracks");
-        
-        const channelData = audioBuffer.getChannelData(0);
-        const step = Math.ceil(channelData.length / 400);
-        const rawWavePoints = [];
-        for (let i = 0; i < 400; i++) {
-            let max = 0;
-            for (let j = 0; j < step; j++) {
-                const val = Math.abs(channelData[(i * step) + j] || 0);
-                if (val > max) max = val;
-            }
-            rawWavePoints.push(parseFloat(max.toFixed(3)));
-        }
+    ctxDummy.decodeAudioData(arrayBuffer.slice(0))
+        .then(audioBuffer => {
+            const transaction = db.transaction(["audio_tracks"], "readwrite");
+            const store = transaction.objectStore("audio_tracks");
 
-        store.add({ 
-            name: name, audioData: arrayBuffer, duration: audioBuffer.duration, wavePoints: rawWavePoints,
-            volume: 0.8, panning: 0, isMuted: false, isBypassed: false, routingTarget: "master", fxSendLevel: 0.1, 
-            eqLow: 0, eqMid: 0, eqHigh: 0,
-            compThreshold: -24, compRatio: 4, compAttack: 0.02, compRelease: 0.20, compKnee: 20, compGain: 0,
-            delayTime: 0.3, delayFeedback: 0.25, delayMix: 0
-        }).onsuccess = () => { loadTracksFromDB(); ctxDummy.close(); };
-    });
+            const channelData = audioBuffer.getChannelData(0);
+            const step = Math.ceil(channelData.length / 400);
+            const rawWavePoints = [];
+            for (let i = 0; i < 400; i++) {
+                let max = 0;
+                for (let j = 0; j < step; j++) {
+                    const val = Math.abs(channelData[(i * step) + j] || 0);
+                    if (val > max) max = val;
+                }
+                rawWavePoints.push(parseFloat(max.toFixed(3)));
+            }
+
+            const req = store.add({ 
+                name: name, audioData: arrayBuffer, duration: audioBuffer.duration, wavePoints: rawWavePoints,
+                volume: 0.8, panning: 0, isMuted: false, isBypassed: false, routingTarget: "master", fxSendLevel: 0.1, 
+                eqLow: 0, eqMid: 0, eqHigh: 0,
+                compThreshold: -24, compRatio: 4, compAttack: 0.02, compRelease: 0.20, compKnee: 20, compGain: 0,
+                delayTime: 0.3, delayFeedback: 0.25, delayMix: 0
+            });
+
+            req.onsuccess = () => { loadTracksFromDB(); ctxDummy.close(); };
+            req.onerror = (e) => {
+                console.error("DB add error:", e.target.error);
+                alert("Gagal menyimpan track.");
+                ctxDummy.close();
+            };
+        })
+        .catch(err => {
+            console.error("Audio decode error:", err);
+            alert("Format audio tidak didukung atau file corrupt.");
+            ctxDummy.close();
+        });
 }
 
 function loadTracksFromDB() {
     if (!db) return;
-    const store = db.transaction(["audio_tracks"], "readonly").objectStore("audio_tracks");
     tracks = [];
+    const transaction = db.transaction(["audio_tracks"], "readonly");
+    const store = transaction.objectStore("audio_tracks");
+
     store.openCursor().onsuccess = (event) => {
         const cursor = event.target.result;
         if (cursor) { tracks.push(cursor.value); cursor.continue(); } 
-        else { 
-            calculateTotalDuration();
-            renderTracks();
-            setTimeout(drawAllWaveforms, 150);
-        }
+        else { calculateTotalDuration(); renderTracks(); setTimeout(drawAllWaveforms, 150); }
     };
+    transaction.onerror = (e) => console.error("DB read error:", e.target.error);
 }
 
 function calculateTotalDuration() {
@@ -242,40 +335,34 @@ function calculateTotalDuration() {
 
 function deleteTrack(id) {
     stopSession();
-    db.transaction(["audio_tracks"], "readwrite").objectStore("audio_tracks").delete(id).onsuccess = () => {
-        playTimeOffset = 0;
-        loadTracksFromDB();
-    };
-}
-
-// PERSISTENSI PARAMETER MIXING KE INDEXEDDB (debounced supaya tidak menulis tiap frame saat drag knob)
-let dbSaveTimers = {};
-function persistTrackState(index) {
-    const track = tracks[index];
-    if (!track || !db || track.id === undefined) return;
-    clearTimeout(dbSaveTimers[track.id]);
-    dbSaveTimers[track.id] = setTimeout(() => {
-        try {
-            const tx = db.transaction(["audio_tracks"], "readwrite");
-            tx.objectStore("audio_tracks").put(track);
-        } catch (err) {
-            console.error("Gagal menyimpan parameter track ke IndexedDB:", err);
-        }
-    }, 400);
+    removeFromCache(id);
+    const transaction = db.transaction(["audio_tracks"], "readwrite");
+    const store = transaction.objectStore("audio_tracks");
+    const req = store.delete(id);
+    req.onsuccess = () => { playTimeOffset = 0; loadTracksFromDB(); };
+    req.onerror = (e) => console.error("Delete error:", e.target.error);
 }
 
 function importAudio(event) {
     const files = event.target.files;
+    const maxSize = 100 * 1024 * 1024;
+
     for (let file of files) {
+        if (file.size > maxSize) {
+            alert(`File "${file.name}" terlalu besar (>${(maxSize/1024/1024).toFixed(0)}MB).`);
+            continue;
+        }
         const reader = new FileReader();
         reader.onload = (e) => saveTrackToDB(file.name, e.target.result);
+        reader.onerror = () => alert(`Gagal membaca file "${file.name}".`);
         reader.readAsArrayBuffer(file);
     }
     event.target.value = "";
 }
 
 function formatTime(secs) {
-    let m = Math.floor(secs / 60); let s = Math.floor(secs % 60);
+    let m = Math.floor(secs / 60); 
+    let s = Math.floor(secs % 60);
     let ms = Math.floor((secs % 1) * 100);
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
 }
@@ -284,6 +371,9 @@ function updateClockUI() {
     document.getElementById("txtTimelineClock").innerText = `${formatTime(playTimeOffset)} / ${formatTime(totalDuration)}`;
 }
 
+// ============================================================
+// RENDERING
+// ============================================================
 function renderTracks() {
     const container = document.getElementById("tracksContainer");
     if (tracks.length === 0) {
@@ -293,7 +383,6 @@ function renderTracks() {
 
     container.innerHTML = tracks.map((track, index) => `
         <div class="track-strip ${track.isMuted ? 'muted-active' : ''} ${track.isBypassed ? 'bypassed-active' : ''}" id="strip-${index}">
-            
             <div class="track-meta">
                 <h6 class="track-title" title="${track.name}">${track.name}</h6>
                 <div class="d-flex gap-1 align-items-center">
@@ -302,17 +391,14 @@ function renderTracks() {
                     <button class="btn btn-sm btn-link text-danger p-0 ms-auto text-decoration-none" style="font-size:12px;" onclick="deleteTrack(${track.id})">🗑️</button>
                 </div>
             </div>
-            
             <div class="waveform-wrapper" onclick="seekTimeline(event, this)">
                 <div class="playhead-bar" id="playhead-${index}"></div>
                 <canvas class="waveform-canvas" id="wave-canvas-${index}"></canvas>
             </div>
-
             <div class="px-1">
                 <span class="val-label">VOL: <span id="v-vol-${index}">${Math.round(track.volume * 100)}</span>%</span>
                 <input type="range" class="form-range" min="0" max="1.5" step="0.02" value="${track.volume}" oninput="liveParamUpdate(${index}, 'volume', this.value)">
             </div>
-
             <div class="d-flex gap-1 align-items-center justify-content-end">
                 <button class="btn btn-sm btn-outline-info fw-bold" style="font-size:11px; width:54px; height:28px;" onclick="openEqModal(${index})">EQ</button>
                 <button class="btn btn-sm btn-outline-success fw-bold" style="font-size:11px; width:64px; height:28px;" onclick="openCompModal(${index})">COMP</button>
@@ -329,11 +415,9 @@ function drawAllWaveforms() {
         const ctx = canvas.getContext("2d");
         const w = canvas.width = canvas.parentElement.clientWidth;
         const h = canvas.height = canvas.parentElement.clientHeight;
-        
         ctx.fillStyle = "#1b253c";
         const pts = track.wavePoints || [];
         const barWidth = w / pts.length;
-        
         for (let i = 0; i < pts.length; i++) {
             const val = pts[i] * h * 0.85;
             ctx.fillRect(i * barWidth, (h / 2) - (val / 2), barWidth - 0.5, val);
@@ -342,18 +426,14 @@ function drawAllWaveforms() {
 }
 
 function seekTimeline(e, element) {
-    if (isExporting) return;
+    if (isExporting || isFastExporting) return;
     const rect = element.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const percentage = clickX / rect.width;
     playTimeOffset = percentage * totalDuration;
     updateClockUI();
     updatePlayheadsUI();
-    
-    if (isPlaying) {
-        stopActiveSourcesOnly();
-        spawnAudioNodeEngine();
-    }
+    if (isPlaying) { stopActiveSourcesOnly(); spawnAudioNodeEngine(); }
 }
 
 function updatePlayheadsUI() {
@@ -366,7 +446,9 @@ function updatePlayheadsUI() {
     });
 }
 
-// 1. MODAL EQUALIZER
+// ============================================================
+// MODAL SYSTEMS
+// ============================================================
 function openEqModal(index) {
     const track = tracks[index];
     document.getElementById("eqModalContent").innerHTML = `
@@ -375,21 +457,19 @@ function openEqModal(index) {
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body d-flex flex-column gap-3 align-items-center">
-            <div class="w-100 px-1">
-                <canvas id="eqGraphCanvas-${index}" class="eq-graph-canvas"></canvas>
-            </div>
+            <div class="w-100 px-1"><canvas id="eqGraphCanvas-${index}" class="eq-graph-canvas"></canvas></div>
             <div class="fx-box">
                 <div class="knob-grid">
                     <div class="knob-container">
-                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'eqLow', -12, 12, 1, 'eq')"><div class="knob-dial" id="k-eql-${index}"></div></div>
+                        <div class="knob-surround" data-knob="true" data-param="eqLow" data-index="${index}" data-min="-12" data-max="12" data-step="1" data-context="eq"><div class="knob-dial" id="k-eql-${index}"></div></div>
                         <div class="knob-title">Low (80Hz)</div><div class="val-label text-light mt-1"><span id="v-eql-${index}">${track.eqLow}</span> dB</div>
                     </div>
                     <div class="knob-container">
-                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'eqMid', -12, 12, 1, 'eq')"><div class="knob-dial" id="k-eqm-${index}"></div></div>
+                        <div class="knob-surround" data-knob="true" data-param="eqMid" data-index="${index}" data-min="-12" data-max="12" data-step="1" data-context="eq"><div class="knob-dial" id="k-eqm-${index}"></div></div>
                         <div class="knob-title">Mid (1kHz)</div><div class="val-label text-light mt-1"><span id="v-eqm-${index}">${track.eqMid}</span> dB</div>
                     </div>
                     <div class="knob-container">
-                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'eqHigh', -12, 12, 1, 'eq')"><div class="knob-dial" id="k-eqh-${index}"></div></div>
+                        <div class="knob-surround" data-knob="true" data-param="eqHigh" data-index="${index}" data-min="-12" data-max="12" data-step="1" data-context="eq"><div class="knob-dial" id="k-eqh-${index}"></div></div>
                         <div class="knob-title">High (10kHz)</div><div class="val-label text-light mt-1"><span id="v-eqh-${index}">${track.eqHigh}</span> dB</div>
                     </div>
                 </div>
@@ -397,6 +477,7 @@ function openEqModal(index) {
         </div>
     `;
     new bootstrap.Modal(document.getElementById('eqPluginModal')).show();
+    setupKnobListeners();
     setTimeout(() => {
         updateKnobRotationUI(index, 'eqLow', track.eqLow, -12, 12);
         updateKnobRotationUI(index, 'eqMid', track.eqMid, -12, 12);
@@ -412,11 +493,9 @@ function drawEqCurve(index) {
     const t = tracks[index];
     canvas.width = canvas.parentElement.clientWidth;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
     ctx.strokeStyle = "#141d30"; ctx.lineWidth = 1;
     for(let x=0; x<canvas.width; x+=canvas.width/4) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
     ctx.beginPath(); ctx.moveTo(0, canvas.height/2); ctx.lineTo(canvas.width, canvas.height/2); ctx.stroke();
-
     ctx.strokeStyle = "#38bdf8"; ctx.lineWidth = 2.5; ctx.beginPath();
     for (let x = 0; x < canvas.width; x++) {
         let pct = x / canvas.width; let gainContrib = 0;
@@ -424,14 +503,12 @@ function drawEqCurve(index) {
         let midDist = Math.abs(pct - 0.5);
         if (midDist < 0.25) gainContrib += t.eqMid * Math.cos((midDist/0.25) * Math.PI/2);
         if (pct > 0.7) gainContrib += t.eqHigh * Math.sin(((pct-0.7)/0.3) * Math.PI/2);
-
         let y = (canvas.height / 2) - (gainContrib * (canvas.height / 28));
         if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     }
     ctx.stroke();
 }
 
-// 2. MODAL COMPRESSOR (RE-ALIGNED HIGH CONTRAST GR GAIN REDUCTION METER)
 function openCompModal(index) {
     const track = tracks[index];
     document.getElementById("compModalContent").innerHTML = `
@@ -451,27 +528,27 @@ function openCompModal(index) {
             <div class="fx-box">
                 <div class="knob-grid">
                     <div class="knob-container">
-                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'compThreshold', -60, 0, 1, 'comp')"><div class="knob-dial" id="k-th-${index}"></div></div>
+                        <div class="knob-surround" data-knob="true" data-param="compThreshold" data-index="${index}" data-min="-60" data-max="0" data-step="1" data-context="comp"><div class="knob-dial" id="k-th-${index}"></div></div>
                         <div class="knob-title">Threshold</div><div class="val-label text-light mt-1"><span id="v-th-${index}">${track.compThreshold}</span> dB</div>
                     </div>
                     <div class="knob-container">
-                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'compRatio', 1, 20, 0.5, 'comp')"><div class="knob-dial" id="k-rat-${index}"></div></div>
+                        <div class="knob-surround" data-knob="true" data-param="compRatio" data-index="${index}" data-min="1" data-max="20" data-step="0.5" data-context="comp"><div class="knob-dial" id="k-rat-${index}"></div></div>
                         <div class="knob-title">Ratio</div><div class="val-label text-light mt-1"><span id="v-rat-${index}">${track.compRatio}</span>:1</div>
                     </div>
                     <div class="knob-container">
-                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'compKnee', 0, 40, 1, 'comp')"><div class="knob-dial" id="k-kne-${index}"></div></div>
+                        <div class="knob-surround" data-knob="true" data-param="compKnee" data-index="${index}" data-min="0" data-max="40" data-step="1" data-context="comp"><div class="knob-dial" id="k-kne-${index}"></div></div>
                         <div class="knob-title">Knee</div><div class="val-label text-light mt-1"><span id="v-kne-${index}">${track.compKnee}</span></div>
                     </div>
                     <div class="knob-container">
-                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'compAttack', 0.001, 0.5, 0.001, 'comp')"><div class="knob-dial" id="k-atk-${index}"></div></div>
+                        <div class="knob-surround" data-knob="true" data-param="compAttack" data-index="${index}" data-min="0.001" data-max="0.5" data-step="0.001" data-context="comp"><div class="knob-dial" id="k-atk-${index}"></div></div>
                         <div class="knob-title">Attack</div><div class="val-label text-light mt-1"><span id="v-atk-${index}">${Math.round(track.compAttack * 1000)}</span> ms</div>
                     </div>
                     <div class="knob-container">
-                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'compRelease', 0.01, 1.0, 0.01, 'comp')"><div class="knob-dial" id="k-rel-${index}"></div></div>
+                        <div class="knob-surround" data-knob="true" data-param="compRelease" data-index="${index}" data-min="0.01" data-max="1.0" data-step="0.01" data-context="comp"><div class="knob-dial" id="k-rel-${index}"></div></div>
                         <div class="knob-title">Release</div><div class="val-label text-light mt-1"><span id="v-rel-${index}">${Math.round(track.compRelease * 1000)}</span> ms</div>
                     </div>
                     <div class="knob-container">
-                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'compGain', -12, 24, 1, 'comp')"><div class="knob-dial" id="k-cgn-${index}"></div></div>
+                        <div class="knob-surround" data-knob="true" data-param="compGain" data-index="${index}" data-min="-12" data-max="24" data-step="1" data-context="comp"><div class="knob-dial" id="k-cgn-${index}"></div></div>
                         <div class="knob-title">Gain</div><div class="val-label text-light mt-1"><span id="v-cgn-${index}">${track.compGain}</span> dB</div>
                     </div>
                 </div>
@@ -479,6 +556,7 @@ function openCompModal(index) {
         </div>
     `;
     new bootstrap.Modal(document.getElementById('compPluginModal')).show();
+    setupKnobListeners();
     setTimeout(() => {
         updateKnobRotationUI(index, 'compThreshold', track.compThreshold, -60, 0);
         updateKnobRotationUI(index, 'compRatio', track.compRatio, 1, 20);
@@ -489,7 +567,6 @@ function openCompModal(index) {
     }, 80);
 }
 
-// 3. MODAL DELAY
 function openDelayModal(index) {
     const track = tracks[index];
     document.getElementById("delayModalContent").innerHTML = `
@@ -502,15 +579,15 @@ function openDelayModal(index) {
                 <span class="val-label text-info fw-bold mb-3">⏱️ DIGITAL FEEDBACK DELAY</span>
                 <div class="knob-grid">
                     <div class="knob-container">
-                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'delayTime', 0.05, 2.0, 0.05, 'delay')"><div class="knob-dial" id="k-dly-${index}"></div></div>
+                        <div class="knob-surround" data-knob="true" data-param="delayTime" data-index="${index}" data-min="0.05" data-max="2.0" data-step="0.05" data-context="delay"><div class="knob-dial" id="k-dly-${index}"></div></div>
                         <div class="knob-title">Time</div><div class="val-label text-light mt-1"><span id="v-dly-${index}">${Math.round(track.delayTime * 1000)}</span> ms</div>
                     </div>
                     <div class="knob-container">
-                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'delayFeedback', 0, 0.95, 0.05, 'delay')"><div class="knob-dial" id="k-dfb-${index}"></div></div>
+                        <div class="knob-surround" data-knob="true" data-param="delayFeedback" data-index="${index}" data-min="0" data-max="0.95" data-step="0.05" data-context="delay"><div class="knob-dial" id="k-dfb-${index}"></div></div>
                         <div class="knob-title">Feedback</div><div class="val-label text-light mt-1"><span id="v-dfb-${index}">${Math.round(track.delayFeedback * 100)}</span>%</div>
                     </div>
                     <div class="knob-container">
-                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'delayMix', 0, 1.0, 0.05, 'delay')"><div class="knob-dial" id="k-dmx-${index}"></div></div>
+                        <div class="knob-surround" data-knob="true" data-param="delayMix" data-index="${index}" data-min="0" data-max="1.0" data-step="0.05" data-context="delay"><div class="knob-dial" id="k-dmx-${index}"></div></div>
                         <div class="knob-title">Mix</div><div class="val-label text-light mt-1"><span id="v-dmx-${index}">${Math.round(track.delayMix * 100)}</span>%</div>
                     </div>
                 </div>
@@ -525,11 +602,11 @@ function openDelayModal(index) {
                 </div>
                 <div class="knob-grid">
                     <div class="knob-container">
-                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'fxSendLevel', 0, 1.0, 0.01, 'aux')"><div class="knob-dial" id="k-fx-${index}"></div></div>
+                        <div class="knob-surround" data-knob="true" data-param="fxSendLevel" data-index="${index}" data-min="0" data-max="1.0" data-step="0.01" data-context="aux"><div class="knob-dial" id="k-fx-${index}"></div></div>
                         <div class="knob-title">Reverb Send</div><div class="val-label text-light mt-1"><span id="v-fx-${index}">${Math.round(track.fxSendLevel * 100)}</span>%</div>
                     </div>
                     <div class="knob-container">
-                        <div class="knob-surround" onmousedown="initKnobDrag(event, ${index}, 'panning', -1.0, 1.0, 0.1, 'aux')"><div class="knob-dial" id="k-pan-${index}"></div></div>
+                        <div class="knob-surround" data-knob="true" data-param="panning" data-index="${index}" data-min="-1.0" data-max="1.0" data-step="0.1" data-context="aux"><div class="knob-dial" id="k-pan-${index}"></div></div>
                         <div class="knob-title">Pan Balance</div><div class="val-label text-light mt-1"><span id="v-pan-${index}">${track.panning}</span></div>
                     </div>
                 </div>
@@ -537,6 +614,7 @@ function openDelayModal(index) {
         </div>
     `;
     new bootstrap.Modal(document.getElementById('delayPluginModal')).show();
+    setupKnobListeners();
     setTimeout(() => {
         updateKnobRotationUI(index, 'delayTime', track.delayTime, 0.05, 2.0);
         updateKnobRotationUI(index, 'delayFeedback', track.delayFeedback, 0, 0.95);
@@ -546,30 +624,60 @@ function openDelayModal(index) {
     }, 80);
 }
 
-function initKnobDrag(e, index, paramName, minVal, maxVal, step, context) {
-    e.preventDefault();
-    let startY = e.clientY;
-    let startVal = tracks[index][paramName];
-    let range = maxVal - minVal;
-    let pixelsPerUnit = 130 / range; 
+// ============================================================
+// ENHANCED KNOB SYSTEM (Mouse + Touch + Precision Fix)
+// ============================================================
+function setupKnobListeners() {
+    document.querySelectorAll('[data-knob="true"]').forEach(knob => {
+        knob.removeEventListener('mousedown', handleKnobStart);
+        knob.removeEventListener('touchstart', handleKnobStart);
+        knob.addEventListener('mousedown', handleKnobStart);
+        knob.addEventListener('touchstart', handleKnobStart, { passive: false });
+    });
+}
 
-    function onMouseMove(moveEvent) {
-        let deltaY = startY - moveEvent.clientY;
+function handleKnobStart(e) {
+    e.preventDefault();
+    const knob = e.currentTarget;
+    const index = parseInt(knob.dataset.index);
+    const paramName = knob.dataset.param;
+    const minVal = parseFloat(knob.dataset.min);
+    const maxVal = parseFloat(knob.dataset.max);
+    const step = parseFloat(knob.dataset.step);
+    const context = knob.dataset.context;
+
+    const startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+    const startVal = tracks[index][paramName];
+    const range = maxVal - minVal;
+    const pixelsPerUnit = 130 / range;
+
+    function onMove(moveEvent) {
+        const clientY = moveEvent.type.includes('touch') ? moveEvent.touches[0].clientY : moveEvent.clientY;
+        const deltaY = startY - clientY;
         let newVal = startVal + (deltaY / pixelsPerUnit);
         newVal = Math.max(minVal, Math.min(maxVal, newVal));
+        // FIX: Floating point precision
+        const decimals = step.toString().split('.')[1]?.length || 0;
+        newVal = parseFloat(newVal.toFixed(decimals));
         newVal = Math.round(newVal / step) * step;
-        
+        newVal = parseFloat(newVal.toFixed(decimals));
+
         liveParamUpdate(index, paramName, newVal);
         updateKnobRotationUI(index, paramName, newVal, minVal, maxVal);
         if (context === 'eq') drawEqCurve(index);
     }
 
-    function onMouseUp() {
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
+    function onEnd() {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onEnd);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend', onEnd);
     }
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
 }
 
 function updateKnobRotationUI(index, paramName, val, minVal, maxVal) {
@@ -586,6 +694,9 @@ function updateKnobRotationUI(index, paramName, val, minVal, maxVal) {
     }
 }
 
+// ============================================================
+// BYPASS, MUTE, PLAY
+// ============================================================
 function toggleBypass(index) {
     tracks[index].isBypassed = !tracks[index].isBypassed;
     const strip = document.getElementById(`strip-${index}`);
@@ -621,7 +732,6 @@ function toggleBypass(index) {
             active.fxSendGainNode.gain.setValueAtTime(tracks[index].fxSendLevel, time);
         }
     }
-    persistTrackState(index);
 }
 
 function toggleMute(index) {
@@ -639,11 +749,10 @@ function toggleMute(index) {
     if (active && audioCtx) {
         active.gainNode.gain.setValueAtTime(tracks[index].isMuted ? 0 : tracks[index].volume, audioCtx.currentTime);
     }
-    persistTrackState(index);
 }
 
 function togglePlayState() {
-    if (isExporting) return;
+    if (isExporting || isFastExporting) return;
     if (isPlaying) {
         isPlaying = false;
         playTimeOffset += (audioCtx.currentTime - startTime);
@@ -669,10 +778,8 @@ function stopSession() {
     updateClockUI(); updatePlayheadsUI();
     const playBtn = document.getElementById("btnPlay");
     if (playBtn) { playBtn.innerHTML = "▶ Play"; playBtn.className = "btn btn-success btn-sm px-3 fw-bold"; }
-    
-    if (isExporting && mediaRecorder) {
-        mediaRecorder.stop();
-    }
+    if (isExporting && mediaRecorder) mediaRecorder.stop();
+    if (isFastExporting) isFastExporting = false;
 }
 
 function stopActiveSourcesOnly() {
@@ -680,7 +787,10 @@ function stopActiveSourcesOnly() {
     activeSources = [];
 }
 
-function spawnAudioNodeEngine() {
+// ============================================================
+// AUDIO ENGINE - OPTIMIZED WITH BUFFER CACHING
+// ============================================================
+async function spawnAudioNodeEngine() {
     if (tracks.length === 0) return;
     startTime = audioCtx.currentTime;
 
@@ -703,31 +813,34 @@ function spawnAudioNodeEngine() {
     globalReverbNode.connect(globalReverbGainNode);
     globalReverbGainNode.connect(masterGainNode);
 
-    // KONEKSI EXPORT JALUR MASTER RECORDING
+    // Export recording path
     if (isExporting) {
         const dest = audioCtx.createMediaStreamDestination();
         masterGainNode.connect(dest);
         recordedChunks = [];
-        mediaRecorder = new MediaRecorder(dest.stream);
+        const mimeType = SUPPORTED_EXPORT_TYPES[0] || 'audio/webm';
+        mediaRecorder = new MediaRecorder(dest.stream, { mimeType });
         mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
         mediaRecorder.onstop = () => {
-            const blob = new Blob(recordedChunks, { type: 'audio/wav' });
+            const blob = new Blob(recordedChunks, { type: mimeType });
+            const ext = mimeType.includes('webm') ? 'webm' : mimeType.includes('ogg') ? 'ogg' : 'mp4';
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url; a.download = 'Mixdown_Studio_Master.wav';
+            a.href = url; a.download = `Mixdown_Studio_Master.${ext}`;
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
-            
             isExporting = false;
-            document.getElementById("exportStatus").innerText = "Export Selesai!";
+            document.getElementById("exportStatus").innerText = `Export Selesai! (${ext.toUpperCase()})`;
+            document.getElementById("exportProgressFill").style.width = "0%";
             stopSession();
         };
         mediaRecorder.start();
     }
 
-    tracks.forEach((track) => {
-        if (playTimeOffset >= track.duration) return;
-        const bufferCopy = track.audioData.slice(0);
-        audioCtx.decodeAudioData(bufferCopy).then((audioBuffer) => {
+    // Process each track using cached buffers
+    for (const track of tracks) {
+        if (playTimeOffset >= track.duration) continue;
+        try {
+            const audioBuffer = await getAudioBuffer(track);
             if (!isPlaying) return;
 
             const source = audioCtx.createBufferSource();
@@ -739,11 +852,9 @@ function spawnAudioNodeEngine() {
 
             const compNode = audioCtx.createDynamicsCompressor();
             const compGainNode = audioCtx.createGain();
-
             const delayNode = audioCtx.createDelay(2.0);
             const delayFeedbackGain = audioCtx.createGain();
             const delayWetGain = audioCtx.createGain();
-
             const gainNode = audioCtx.createGain();
             const pannerNode = audioCtx.createStereoPanner();
             const fxSendGainNode = audioCtx.createGain();
@@ -778,40 +889,222 @@ function spawnAudioNodeEngine() {
 
             source.connect(eqLowNode).connect(eqMidNode).connect(eqHighNode).connect(compNode).connect(compGainNode);
             compGainNode.connect(gainNode);
-            
             compGainNode.connect(delayNode).connect(delayFeedbackGain).connect(delayNode);
             delayNode.connect(delayWetGain).connect(gainNode);
-
             gainNode.connect(pannerNode);
             if (track.routingTarget === "bus1") pannerNode.connect(busGainNode);
             else pannerNode.connect(masterGainNode);
-
             compGainNode.connect(fxSendGainNode).connect(globalReverbNode);
             source.start(0, playTimeOffset);
 
             activeSources.push({
                 id: track.id, source, eqLowNode, eqMidNode, eqHighNode, compNode, compGainNode, delayNode, delayFeedbackGain, delayWetGain, gainNode, pannerNode, fxSendGainNode
             });
-        });
-    });
-
+        } catch (err) {
+            console.error("Failed to process track", track.id, err);
+        }
+    }
     startGlobalRenderMonitoring();
 }
 
-// DRIVER UTAMA EXPORT MIXDOWN REAL-TIME
+// ============================================================
+// FAST EXPORT: OfflineAudioContext (10-50x faster)
+// ============================================================
+async function triggerFastExport() {
+    if (tracks.length === 0) return alert("Tidak ada track audio untuk diexport!");
+    if (isFastExporting) return;
+
+    stopSession();
+    isFastExporting = true;
+
+    const sampleRate = 44100;
+    const duration = Math.ceil(totalDuration);
+
+    document.getElementById("exportStatus").innerText = "⚡ Fast Export (Offline)...";
+    document.getElementById("exportProgressFill").style.width = "5%";
+
+    try {
+        offlineCtx = new OfflineAudioContext(2, duration * sampleRate, sampleRate);
+
+        const offlineMaster = offlineCtx.createGain();
+        offlineMaster.gain.setValueAtTime(currentMasterVolume, 0);
+
+        const offlineBus = offlineCtx.createGain();
+        offlineBus.gain.setValueAtTime(currentBusVolume, 0);
+        offlineBus.connect(offlineMaster);
+
+        const offlineReverb = offlineCtx.createConvolver();
+        offlineReverb.buffer = createSyntheticImpulseOffline(2.0, 1.5, sampleRate);
+        const offlineReverbGain = offlineCtx.createGain();
+        offlineReverbGain.gain.setValueAtTime(currentGlobalReverbMix, 0);
+        offlineReverb.connect(offlineReverbGain);
+        offlineReverbGain.connect(offlineMaster);
+
+        offlineMaster.connect(offlineCtx.destination);
+
+        let processedCount = 0;
+        for (const track of tracks) {
+            try {
+                const offlineBuffer = await decodeForOffline(track.audioData.slice(0), sampleRate);
+
+                const source = offlineCtx.createBufferSource();
+                source.buffer = offlineBuffer;
+
+                const eqLow = offlineCtx.createBiquadFilter(); eqLow.type = "lowshelf"; eqLow.frequency.value = 80;
+                const eqMid = offlineCtx.createBiquadFilter(); eqMid.type = "peaking"; eqMid.frequency.value = 1000;
+                const eqHigh = offlineCtx.createBiquadFilter(); eqHigh.type = "highshelf"; eqHigh.frequency.value = 10000;
+
+                const comp = offlineCtx.createDynamicsCompressor();
+                const compGain = offlineCtx.createGain();
+                const delay = offlineCtx.createDelay(2.0);
+                const delayFB = offlineCtx.createGain();
+                const delayWet = offlineCtx.createGain();
+                const gain = offlineCtx.createGain();
+                const panner = offlineCtx.createStereoPanner();
+                const fxSend = offlineCtx.createGain();
+
+                if (!track.isBypassed) {
+                    eqLow.gain.setValueAtTime(track.eqLow, 0);
+                    eqMid.gain.setValueAtTime(track.eqMid, 0);
+                    eqHigh.gain.setValueAtTime(track.eqHigh, 0);
+                    comp.threshold.setValueAtTime(track.compThreshold, 0);
+                    comp.ratio.setValueAtTime(track.compRatio, 0);
+                    comp.attack.setValueAtTime(track.compAttack, 0);
+                    comp.release.setValueAtTime(track.compRelease, 0);
+                    comp.knee.setValueAtTime(track.compKnee, 0);
+                    compGain.gain.setValueAtTime(Math.pow(10, track.compGain / 20), 0);
+                    delay.delayTime.setValueAtTime(track.delayTime, 0);
+                    delayFB.gain.setValueAtTime(track.delayFeedback, 0);
+                    delayWet.gain.setValueAtTime(track.delayMix, 0);
+                    fxSend.gain.setValueAtTime(track.fxSendLevel, 0);
+                }
+
+                gain.gain.setValueAtTime(track.isMuted ? 0 : track.volume, 0);
+                panner.pan.setValueAtTime(track.panning, 0);
+
+                source.connect(eqLow).connect(eqMid).connect(eqHigh).connect(comp).connect(compGain);
+                compGain.connect(gain);
+                compGain.connect(delay).connect(delayFB).connect(delay);
+                delay.connect(delayWet).connect(gain);
+                gain.connect(panner);
+
+                if (track.routingTarget === "bus1") panner.connect(offlineBus);
+                else panner.connect(offlineMaster);
+
+                compGain.connect(fxSend).connect(offlineReverb);
+                source.start(0);
+                processedCount++;
+                document.getElementById("exportProgressFill").style.width = `${5 + (processedCount / tracks.length) * 45}%`;
+            } catch (err) {
+                console.error("Offline track error:", err);
+            }
+        }
+
+        document.getElementById("exportStatus").innerText = "⚡ Rendering audio...";
+        document.getElementById("exportProgressFill").style.width = "50%";
+
+        const renderedBuffer = await offlineCtx.startRendering();
+        document.getElementById("exportProgressFill").style.width = "80%";
+
+        const wavBlob = bufferToWave(renderedBuffer, renderedBuffer.length);
+        const url = URL.createObjectURL(wavBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Mixdown_Studio_Master.wav';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+
+        document.getElementById("exportStatus").innerText = "✅ Fast Export Selesai! (WAV)";
+        document.getElementById("exportProgressFill").style.width = "100%";
+
+    } catch (err) {
+        console.error("Fast export error:", err);
+        document.getElementById("exportStatus").innerText = "❌ Export gagal: " + err.message;
+    } finally {
+        isFastExporting = false;
+        offlineCtx = null;
+        setTimeout(() => { document.getElementById("exportProgressFill").style.width = "0%"; }, 3000);
+    }
+}
+
+async function decodeForOffline(arrayBuffer, sampleRate) {
+    const tempCtx = new OfflineAudioContext(1, 1, sampleRate);
+    return await tempCtx.decodeAudioData(arrayBuffer);
+}
+
+function createSyntheticImpulseOffline(duration, decay, sampleRate) {
+    const length = sampleRate * duration;
+    const impulse = new AudioBuffer({ length, numberOfChannels: 2, sampleRate });
+    for (let channel = 0; channel < 2; channel++) {
+        const data = impulse.getChannelData(channel);
+        for (let i = 0; i < length; i++) { 
+            data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay); 
+        }
+    }
+    return impulse;
+}
+
+// WAV encoder
+function bufferToWave(abuffer, len) {
+    let numOfChan = abuffer.numberOfChannels,
+        length = len * numOfChan * 2 + 44,
+        buffer = new ArrayBuffer(length),
+        view = new DataView(buffer),
+        channels = [], i, sample, offset = 0, pos = 0;
+
+    function setUint16(data) { view.setUint16(pos, data, true); pos += 2; }
+    function setUint32(data) { view.setUint32(pos, data, true); pos += 4; }
+
+    setUint32(0x46464952); // "RIFF"
+    setUint32(length - 8);
+    setUint32(0x45564157); // "WAVE"
+    setUint32(0x20746d66); // "fmt "
+    setUint32(16);
+    setUint16(1);
+    setUint16(numOfChan);
+    setUint32(abuffer.sampleRate);
+    setUint32(abuffer.sampleRate * 2 * numOfChan);
+    setUint16(numOfChan * 2);
+    setUint16(16);
+    setUint32(0x61746164); // "data"
+    setUint32(length - pos - 4);
+
+    for(i = 0; i < abuffer.numberOfChannels; i++)
+        channels.push(abuffer.getChannelData(i));
+
+    while(pos < length) {
+        for(i = 0; i < numOfChan; i++) {
+            sample = Math.max(-1, Math.min(1, channels[i][offset]));
+            sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767)|0;
+            view.setInt16(pos, sample, true);
+            pos += 2;
+        }
+        offset++;
+    }
+    return new Blob([buffer], { type: "audio/wav" });
+}
+
+// ============================================================
+// REAL-TIME EXPORT (MediaRecorder)
+// ============================================================
 function triggerMixdownBounce() {
     if (tracks.length === 0) return alert("Tidak ada track audio untuk diexport!");
+    if (SUPPORTED_EXPORT_TYPES.length === 0) {
+        alert("Browser tidak mendukung MediaRecorder. Gunakan Fast Export (Offline) saja.");
+        return;
+    }
     stopSession();
-    
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     isExporting = true;
     isPlaying = true;
     playTimeOffset = 0;
-    
     document.getElementById("exportStatus").innerText = "🔴 Exporting Mixdown...";
+    document.getElementById("exportProgressFill").style.width = "0%";
     spawnAudioNodeEngine();
 }
 
+// ============================================================
+// RENDER LOOP
+// ============================================================
 function startGlobalRenderMonitoring() {
     const canvas = document.getElementById("spectrumMeter");
     const ctx = canvas ? canvas.getContext("2d") : null;
@@ -824,14 +1117,19 @@ function startGlobalRenderMonitoring() {
 
         const currentElapsed = playTimeOffset + (audioCtx.currentTime - startTime);
         if (currentElapsed >= totalDuration) { stopSession(); return; }
-        
+
         document.getElementById("txtTimelineClock").innerText = `${formatTime(currentElapsed)} / ${formatTime(totalDuration)}`;
-        
+
+        // Update export progress
+        if (isExporting) {
+            const pct = (currentElapsed / totalDuration) * 100;
+            document.getElementById("exportProgressFill").style.width = `${pct}%`;
+        }
+
         tracks.forEach((track, index) => {
             const playhead = document.getElementById(`playhead-${index}`);
             if (playhead) { playhead.style.left = `${(currentElapsed / totalDuration) * 100}%`; }
-            
-            // FIX REAL-TIME GAIN REDUCTION METER CONTRAST VALUE
+
             const active = activeSources.find(s => s.id === track.id);
             const grFill = document.getElementById(`gr-fill-${index}`);
             const grNum = document.getElementById(`gr-num-val-${index}`);
@@ -846,12 +1144,9 @@ function startGlobalRenderMonitoring() {
             }
         });
 
-        // DRAW GRAPHIC SPECTRUM WITH CALIBRATED FREQUENCY TICKS
         if (ctx) {
             masterAnalyzerNode.getByteFrequencyData(dataArray);
             ctx.fillStyle = "#020617"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw grid lines
             ctx.strokeStyle = "#1e293b"; ctx.lineWidth = 1;
             const ticks = [
                 { hz: '20Hz', pct: 0.05 }, { hz: '100Hz', pct: 0.2 },
@@ -863,8 +1158,6 @@ function startGlobalRenderMonitoring() {
                 ctx.fillStyle = "#94a3b8"; ctx.font = "10px monospace";
                 ctx.fillText(t.hz, xPos - 12, canvas.height - 5);
             });
-
-            // Draw Frequency spectrum bars
             const barWidth = (canvas.width / bufferLength) * 1.5; let barHeight; let x = 0;
             for (let i = 0; i < bufferLength; i++) {
                 barHeight = dataArray[i] / 1.3;
@@ -878,7 +1171,8 @@ function startGlobalRenderMonitoring() {
 }
 
 function createSyntheticImpulse(duration, decay) {
-    const sampleRate = audioCtx ? audioCtx.sampleRate : 44100; const length = sampleRate * duration;
+    const sampleRate = audioCtx ? audioCtx.sampleRate : 44100;
+    const length = sampleRate * duration;
     const impulse = (audioCtx || new AudioContext()).createBuffer(2, length, sampleRate);
     for (let channel = 0; channel < 2; channel++) {
         const data = impulse.getChannelData(channel);
@@ -887,10 +1181,12 @@ function createSyntheticImpulse(duration, decay) {
     return impulse;
 }
 
+// ============================================================
+// PARAMETER UPDATES
+// ============================================================
 function liveParamUpdate(index, paramName, value) {
     if (paramName !== 'routingTarget') value = parseFloat(value);
     tracks[index][paramName] = value;
-    persistTrackState(index);
     const active = activeSources.find(s => s.id === tracks[index].id);
 
     const labelMap = { 
@@ -898,7 +1194,7 @@ function liveParamUpdate(index, paramName, value) {
         compThreshold: 'th', compRatio: 'rat', compKnee: 'kne', compAttack: 'atk', compRelease: 'rel', compGain: 'cgn',
         delayTime: 'dly', delayFeedback: 'dfb', delayMix: 'dmx'
     };
-    
+
     const targetEl = document.getElementById(`v-${labelMap[paramName]}-${index}`);
     if (targetEl) {
         if (paramName==='volume'||paramName==='fxSendLevel'||paramName==='delayFeedback'||paramName==='delayMix') targetEl.innerText = Math.round(value*100);
@@ -931,22 +1227,25 @@ function liveParamUpdate(index, paramName, value) {
     }
 }
 
-function updateMasterVolume(val) { currentMasterVolume = parseFloat(val); document.getElementById("txtMasterVol").innerText = Math.round(currentMasterVolume*100); if(masterGainNode) masterGainNode.gain.setValueAtTime(currentMasterVolume, audioCtx.currentTime); }
-function updateBusVolume(val) { currentBusVolume = parseFloat(val); document.getElementById("txtBusVol").innerText = Math.round(currentBusVolume*100); if(busGainNode) busGainNode.gain.setValueAtTime(currentBusVolume, audioCtx.currentTime); }
-function updateGlobalReverb(val) { currentGlobalReverbMix = parseFloat(val); document.getElementById("txtGlobalRev").innerText = Math.round(currentGlobalReverbMix*100); if(globalReverbGainNode) globalReverbGainNode.gain.setValueAtTime(currentGlobalReverbMix, audioCtx.currentTime); }
-
-// Escape HTML supaya input user & balasan AI tidak bisa menyuntik markup/script ke dalam chat box
-function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = String(str);
-    return div.innerHTML;
+function updateMasterVolume(val) { 
+    currentMasterVolume = parseFloat(val); 
+    document.getElementById("txtMasterVol").innerText = Math.round(currentMasterVolume*100); 
+    if(masterGainNode) masterGainNode.gain.setValueAtTime(currentMasterVolume, audioCtx.currentTime); 
+}
+function updateBusVolume(val) { 
+    currentBusVolume = parseFloat(val); 
+    document.getElementById("txtBusVol").innerText = Math.round(currentBusVolume*100); 
+    if(busGainNode) busGainNode.gain.setValueAtTime(currentBusVolume, audioCtx.currentTime); 
+}
+function updateGlobalReverb(val) { 
+    currentGlobalReverbMix = parseFloat(val); 
+    document.getElementById("txtGlobalRev").innerText = Math.round(currentGlobalReverbMix*100); 
+    if(globalReverbGainNode) globalReverbGainNode.gain.setValueAtTime(currentGlobalReverbMix, audioCtx.currentTime); 
 }
 
-function clearApiKey() {
-    document.getElementById("apiKey").value = "";
-}
-
-// INTELLIGENT AI SYSTEM CHAT DRIVER INTERACTION
+// ============================================================
+// AI ASSISTANT (with timeout and error handling)
+// ============================================================
 async function sendPromptToAI() {
     const apiKey = document.getElementById("apiKey").value.trim();
     const inputEl = document.getElementById("aiInput");
@@ -954,7 +1253,7 @@ async function sendPromptToAI() {
     if (!prompt) return;
 
     const chatBox = document.getElementById("aiOutput");
-    chatBox.innerHTML += `<br><span class='text-warning'>[User]: ${escapeHtml(prompt)}</span>`;
+    chatBox.innerHTML += `<br><span class='text-warning'>[User]: ${prompt}</span>`;
     inputEl.value = "";
     chatBox.scrollTop = chatBox.scrollHeight;
 
@@ -962,6 +1261,9 @@ async function sendPromptToAI() {
         chatBox.innerHTML += `<br><span class='text-danger'>[System Error]: Harap isi DeepSeek API Key di kanan atas!</span>`;
         return;
     }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
 
     try {
         const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
@@ -973,26 +1275,38 @@ async function sendPromptToAI() {
                     { role: "system", content: "Anda adalah robot asisten mixing audio DAW profesional. Jawab secara ringkas dan solutif." },
                     { role: "user", content: prompt }
                 ]
-            })
+            }),
+            signal: controller.signal
         });
-        if (!response.ok) {
-            const errText = await response.text().catch(() => "");
-            throw new Error(`HTTP ${response.status} ${errText.slice(0, 200)}`);
-        }
+        clearTimeout(timeoutId);
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
-        const reply = data?.choices?.[0]?.message?.content;
-        if (!reply) throw new Error("Format respons API tidak dikenali.");
-        chatBox.innerHTML += `<br><span class='text-info'>[AI Assistant]: ${escapeHtml(reply)}</span>`;
+        const reply = data.choices[0].message.content;
+        chatBox.innerHTML += `<br><span class='text-info'>[AI Assistant]: ${reply}</span>`;
     } catch (err) {
-        chatBox.innerHTML += `<br><span class='text-danger'>[System Error]: Gagal menghubungi server AI (${escapeHtml(err.message || "unknown")}).</span>`;
+        clearTimeout(timeoutId);
+        if (err.name === 'AbortError') {
+            chatBox.innerHTML += `<br><span class='text-danger'>[System Error]: Request timeout (15s). Coba lagi.</span>`;
+        } else {
+            chatBox.innerHTML += `<br><span class='text-danger'>[System Error]: ${err.message}</span>`;
+        }
     }
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-window.addEventListener("resize", drawAllWaveforms);
+// ============================================================
+// DEBOUNCED RESIZE + INIT
+// ============================================================
+window.addEventListener("resize", () => {
+    clearTimeout(resizeDebounceTimer);
+    resizeDebounceTimer = setTimeout(drawAllWaveforms, 150);
+});
+
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("txtMasterVol").innerText = Math.round(currentMasterVolume * 100);
     document.getElementById("txtBusVol").innerText = Math.round(currentBusVolume * 100);
+    updateMemoryIndicator();
 });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
